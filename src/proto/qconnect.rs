@@ -781,17 +781,13 @@ pub struct QConnectMessage {
     #[prost(message, optional, tag = "25")]
     pub rndr_srvr_volume_changed: ::core::option::Option<RndrSrvrVolumeChanged>,
     #[prost(message, optional, tag = "26")]
-    pub rndr_srvr_file_audio_quality_changed: ::core::option::Option<
-        RndrSrvrFileAudioQualityChanged,
-    >,
+    pub rndr_srvr_file_audio_quality_changed:
+        ::core::option::Option<RndrSrvrFileAudioQualityChanged>,
     #[prost(message, optional, tag = "27")]
-    pub rndr_srvr_device_audio_quality_changed: ::core::option::Option<
-        RndrSrvrDeviceAudioQualityChanged,
-    >,
+    pub rndr_srvr_device_audio_quality_changed:
+        ::core::option::Option<RndrSrvrDeviceAudioQualityChanged>,
     #[prost(message, optional, tag = "28")]
-    pub rndr_srvr_max_audio_quality_changed: ::core::option::Option<
-        RndrSrvrMaxAudioQualityChanged,
-    >,
+    pub rndr_srvr_max_audio_quality_changed: ::core::option::Option<RndrSrvrMaxAudioQualityChanged>,
     #[prost(message, optional, tag = "29")]
     pub rndr_srvr_volume_muted: ::core::option::Option<RndrSrvrVolumeMuted>,
     #[prost(message, optional, tag = "41")]
@@ -801,9 +797,7 @@ pub struct QConnectMessage {
     #[prost(message, optional, tag = "43")]
     pub srvr_rndr_set_active: ::core::option::Option<SrvrRndrSetActive>,
     #[prost(message, optional, tag = "44")]
-    pub srvr_rndr_set_max_audio_quality: ::core::option::Option<
-        SrvrRndrSetMaxAudioQuality,
-    >,
+    pub srvr_rndr_set_max_audio_quality: ::core::option::Option<SrvrRndrSetMaxAudioQuality>,
     #[prost(message, optional, tag = "45")]
     pub srvr_rndr_set_loop_mode: ::core::option::Option<SrvrRndrSetLoopMode>,
     #[prost(message, optional, tag = "46")]
@@ -829,9 +823,7 @@ pub struct QConnectMessage {
     #[prost(message, optional, tag = "69")]
     pub ctrl_srvr_queue_remove_tracks: ::core::option::Option<CtrlSrvrQueueRemoveTracks>,
     #[prost(message, optional, tag = "70")]
-    pub ctrl_srvr_queue_reorder_tracks: ::core::option::Option<
-        CtrlSrvrQueueReorderTracks,
-    >,
+    pub ctrl_srvr_queue_reorder_tracks: ::core::option::Option<CtrlSrvrQueueReorderTracks>,
     #[prost(message, optional, tag = "71")]
     pub ctrl_srvr_set_shuffle_mode: ::core::option::Option<CtrlSrvrSetShuffleMode>,
     #[prost(message, optional, tag = "72")]
@@ -839,33 +831,23 @@ pub struct QConnectMessage {
     #[prost(message, optional, tag = "73")]
     pub ctrl_srvr_mute_volume: ::core::option::Option<CtrlSrvrMuteVolume>,
     #[prost(message, optional, tag = "74")]
-    pub ctrl_srvr_set_max_audio_quality: ::core::option::Option<
-        CtrlSrvrSetMaxAudioQuality,
-    >,
+    pub ctrl_srvr_set_max_audio_quality: ::core::option::Option<CtrlSrvrSetMaxAudioQuality>,
     #[prost(message, optional, tag = "75")]
     pub ctrl_srvr_set_queue_state: ::core::option::Option<CtrlSrvrSetQueueState>,
     #[prost(message, optional, tag = "76")]
     pub ctrl_srvr_ask_for_queue_state: ::core::option::Option<CtrlSrvrAskForQueueState>,
     #[prost(message, optional, tag = "77")]
-    pub ctrl_srvr_ask_for_renderer_state: ::core::option::Option<
-        CtrlSrvrAskForRendererState,
-    >,
+    pub ctrl_srvr_ask_for_renderer_state: ::core::option::Option<CtrlSrvrAskForRendererState>,
     #[prost(message, optional, tag = "78")]
     pub ctrl_srvr_set_autoplay_mode: ::core::option::Option<CtrlSrvrSetAutoplayMode>,
     #[prost(message, optional, tag = "79")]
-    pub ctrl_srvr_autoplay_load_tracks: ::core::option::Option<
-        CtrlSrvrAutoplayLoadTracks,
-    >,
+    pub ctrl_srvr_autoplay_load_tracks: ::core::option::Option<CtrlSrvrAutoplayLoadTracks>,
     #[prost(message, optional, tag = "80")]
-    pub ctrl_srvr_autoplay_remove_tracks: ::core::option::Option<
-        CtrlSrvrAutoplayRemoveTracks,
-    >,
+    pub ctrl_srvr_autoplay_remove_tracks: ::core::option::Option<CtrlSrvrAutoplayRemoveTracks>,
     #[prost(message, optional, tag = "81")]
     pub srvr_ctrl_session_state: ::core::option::Option<SrvrCtrlSessionState>,
     #[prost(message, optional, tag = "82")]
-    pub srvr_ctrl_renderer_state_updated: ::core::option::Option<
-        SrvrCtrlRendererStateUpdated,
-    >,
+    pub srvr_ctrl_renderer_state_updated: ::core::option::Option<SrvrCtrlRendererStateUpdated>,
     #[prost(message, optional, tag = "83")]
     pub srvr_ctrl_add_renderer: ::core::option::Option<SrvrCtrlAddRenderer>,
     #[prost(message, optional, tag = "84")]
@@ -873,9 +855,7 @@ pub struct QConnectMessage {
     #[prost(message, optional, tag = "85")]
     pub srvr_ctrl_remove_renderer: ::core::option::Option<SrvrCtrlRemoveRenderer>,
     #[prost(message, optional, tag = "86")]
-    pub srvr_ctrl_active_renderer_changed: ::core::option::Option<
-        SrvrCtrlActiveRendererChanged,
-    >,
+    pub srvr_ctrl_active_renderer_changed: ::core::option::Option<SrvrCtrlActiveRendererChanged>,
     #[prost(message, optional, tag = "87")]
     pub srvr_ctrl_volume_changed: ::core::option::Option<SrvrCtrlVolumeChanged>,
     #[prost(message, optional, tag = "88")]
@@ -887,19 +867,13 @@ pub struct QConnectMessage {
     #[prost(message, optional, tag = "91")]
     pub srvr_ctrl_queue_tracks_loaded: ::core::option::Option<SrvrCtrlQueueTracksLoaded>,
     #[prost(message, optional, tag = "92")]
-    pub srvr_ctrl_queue_tracks_inserted: ::core::option::Option<
-        SrvrCtrlQueueTracksInserted,
-    >,
+    pub srvr_ctrl_queue_tracks_inserted: ::core::option::Option<SrvrCtrlQueueTracksInserted>,
     #[prost(message, optional, tag = "93")]
     pub srvr_ctrl_queue_tracks_added: ::core::option::Option<SrvrCtrlQueueTracksAdded>,
     #[prost(message, optional, tag = "94")]
-    pub srvr_ctrl_queue_tracks_removed: ::core::option::Option<
-        SrvrCtrlQueueTracksRemoved,
-    >,
+    pub srvr_ctrl_queue_tracks_removed: ::core::option::Option<SrvrCtrlQueueTracksRemoved>,
     #[prost(message, optional, tag = "95")]
-    pub srvr_ctrl_queue_tracks_reordered: ::core::option::Option<
-        SrvrCtrlQueueTracksReordered,
-    >,
+    pub srvr_ctrl_queue_tracks_reordered: ::core::option::Option<SrvrCtrlQueueTracksReordered>,
     #[prost(message, optional, tag = "96")]
     pub srvr_ctrl_shuffle_mode_set: ::core::option::Option<SrvrCtrlShuffleModeSet>,
     #[prost(message, optional, tag = "97")]
@@ -907,31 +881,22 @@ pub struct QConnectMessage {
     #[prost(message, optional, tag = "98")]
     pub srvr_ctrl_volume_muted: ::core::option::Option<SrvrCtrlVolumeMuted>,
     #[prost(message, optional, tag = "99")]
-    pub srvr_ctrl_max_audio_quality_changed: ::core::option::Option<
-        SrvrCtrlMaxAudioQualityChanged,
-    >,
+    pub srvr_ctrl_max_audio_quality_changed: ::core::option::Option<SrvrCtrlMaxAudioQualityChanged>,
     #[prost(message, optional, tag = "100")]
-    pub srvr_ctrl_file_audio_quality_changed: ::core::option::Option<
-        SrvrCtrlFileAudioQualityChanged,
-    >,
+    pub srvr_ctrl_file_audio_quality_changed:
+        ::core::option::Option<SrvrCtrlFileAudioQualityChanged>,
     #[prost(message, optional, tag = "101")]
-    pub srvr_ctrl_device_audio_quality_changed: ::core::option::Option<
-        SrvrCtrlDeviceAudioQualityChanged,
-    >,
+    pub srvr_ctrl_device_audio_quality_changed:
+        ::core::option::Option<SrvrCtrlDeviceAudioQualityChanged>,
     #[prost(message, optional, tag = "102")]
     pub srvr_ctrl_autoplay_mode_set: ::core::option::Option<SrvrCtrlAutoplayModeSet>,
     #[prost(message, optional, tag = "103")]
-    pub srvr_ctrl_autoplay_tracks_loaded: ::core::option::Option<
-        SrvrCtrlAutoplayTracksLoaded,
-    >,
+    pub srvr_ctrl_autoplay_tracks_loaded: ::core::option::Option<SrvrCtrlAutoplayTracksLoaded>,
     #[prost(message, optional, tag = "104")]
-    pub srvr_ctrl_autoplay_tracks_removed: ::core::option::Option<
-        SrvrCtrlAutoplayTracksRemoved,
-    >,
+    pub srvr_ctrl_autoplay_tracks_removed: ::core::option::Option<SrvrCtrlAutoplayTracksRemoved>,
     #[prost(message, optional, tag = "105")]
-    pub srvr_ctrl_queue_tracks_added_from_autoplay: ::core::option::Option<
-        SrvrCtrlQueueTracksAddedFromAutoplay,
-    >,
+    pub srvr_ctrl_queue_tracks_added_from_autoplay:
+        ::core::option::Option<SrvrCtrlQueueTracksAddedFromAutoplay>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -1408,9 +1373,7 @@ impl MessageType {
             Self::PlaybackError => "MESSAGE_TYPE_PLAYBACK_ERROR",
             Self::Authenticate => "MESSAGE_TYPE_AUTHENTICATE",
             Self::RndrSrvrJoinSession => "MESSAGE_TYPE_RNDR_SRVR_JOIN_SESSION",
-            Self::RndrSrvrDeviceInfoUpdated => {
-                "MESSAGE_TYPE_RNDR_SRVR_DEVICE_INFO_UPDATED"
-            }
+            Self::RndrSrvrDeviceInfoUpdated => "MESSAGE_TYPE_RNDR_SRVR_DEVICE_INFO_UPDATED",
             Self::RndrSrvrStateUpdated => "MESSAGE_TYPE_RNDR_SRVR_STATE_UPDATED",
             Self::RndrSrvrRendererAction => "MESSAGE_TYPE_RNDR_SRVR_RENDERER_ACTION",
             Self::RndrSrvrVolumeChanged => "MESSAGE_TYPE_RNDR_SRVR_VOLUME_CHANGED",
@@ -1427,79 +1390,45 @@ impl MessageType {
             Self::SrvrRndrSetState => "MESSAGE_TYPE_SRVR_RNDR_SET_STATE",
             Self::SrvrRndrSetVolume => "MESSAGE_TYPE_SRVR_RNDR_SET_VOLUME",
             Self::SrvrRndrSetActive => "MESSAGE_TYPE_SRVR_RNDR_SET_ACTIVE",
-            Self::SrvrRndrSetMaxAudioQuality => {
-                "MESSAGE_TYPE_SRVR_RNDR_SET_MAX_AUDIO_QUALITY"
-            }
+            Self::SrvrRndrSetMaxAudioQuality => "MESSAGE_TYPE_SRVR_RNDR_SET_MAX_AUDIO_QUALITY",
             Self::SrvrRndrSetLoopMode => "MESSAGE_TYPE_SRVR_RNDR_SET_LOOP_MODE",
             Self::SrvrRndrSetShuffleMode => "MESSAGE_TYPE_SRVR_RNDR_SET_SHUFFLE_MODE",
             Self::SrvrRndrMuteVolume => "MESSAGE_TYPE_SRVR_RNDR_MUTE_VOLUME",
             Self::CtrlSrvrJoinSession => "MESSAGE_TYPE_CTRL_SRVR_JOIN_SESSION",
             Self::CtrlSrvrSetPlayerState => "MESSAGE_TYPE_CTRL_SRVR_SET_PLAYER_STATE",
-            Self::CtrlSrvrSetActiveRenderer => {
-                "MESSAGE_TYPE_CTRL_SRVR_SET_ACTIVE_RENDERER"
-            }
+            Self::CtrlSrvrSetActiveRenderer => "MESSAGE_TYPE_CTRL_SRVR_SET_ACTIVE_RENDERER",
             Self::CtrlSrvrSetVolume => "MESSAGE_TYPE_CTRL_SRVR_SET_VOLUME",
             Self::CtrlSrvrClearQueue => "MESSAGE_TYPE_CTRL_SRVR_CLEAR_QUEUE",
             Self::CtrlSrvrQueueLoadTracks => "MESSAGE_TYPE_CTRL_SRVR_QUEUE_LOAD_TRACKS",
-            Self::CtrlSrvrQueueInsertTracks => {
-                "MESSAGE_TYPE_CTRL_SRVR_QUEUE_INSERT_TRACKS"
-            }
+            Self::CtrlSrvrQueueInsertTracks => "MESSAGE_TYPE_CTRL_SRVR_QUEUE_INSERT_TRACKS",
             Self::CtrlSrvrQueueAddTracks => "MESSAGE_TYPE_CTRL_SRVR_QUEUE_ADD_TRACKS",
-            Self::CtrlSrvrQueueRemoveTracks => {
-                "MESSAGE_TYPE_CTRL_SRVR_QUEUE_REMOVE_TRACKS"
-            }
-            Self::CtrlSrvrQueueReorderTracks => {
-                "MESSAGE_TYPE_CTRL_SRVR_QUEUE_REORDER_TRACKS"
-            }
+            Self::CtrlSrvrQueueRemoveTracks => "MESSAGE_TYPE_CTRL_SRVR_QUEUE_REMOVE_TRACKS",
+            Self::CtrlSrvrQueueReorderTracks => "MESSAGE_TYPE_CTRL_SRVR_QUEUE_REORDER_TRACKS",
             Self::CtrlSrvrSetShuffleMode => "MESSAGE_TYPE_CTRL_SRVR_SET_SHUFFLE_MODE",
             Self::CtrlSrvrSetLoopMode => "MESSAGE_TYPE_CTRL_SRVR_SET_LOOP_MODE",
             Self::CtrlSrvrMuteVolume => "MESSAGE_TYPE_CTRL_SRVR_MUTE_VOLUME",
-            Self::CtrlSrvrSetMaxAudioQuality => {
-                "MESSAGE_TYPE_CTRL_SRVR_SET_MAX_AUDIO_QUALITY"
-            }
+            Self::CtrlSrvrSetMaxAudioQuality => "MESSAGE_TYPE_CTRL_SRVR_SET_MAX_AUDIO_QUALITY",
             Self::CtrlSrvrSetQueueState => "MESSAGE_TYPE_CTRL_SRVR_SET_QUEUE_STATE",
-            Self::CtrlSrvrAskForQueueState => {
-                "MESSAGE_TYPE_CTRL_SRVR_ASK_FOR_QUEUE_STATE"
-            }
-            Self::CtrlSrvrAskForRendererState => {
-                "MESSAGE_TYPE_CTRL_SRVR_ASK_FOR_RENDERER_STATE"
-            }
+            Self::CtrlSrvrAskForQueueState => "MESSAGE_TYPE_CTRL_SRVR_ASK_FOR_QUEUE_STATE",
+            Self::CtrlSrvrAskForRendererState => "MESSAGE_TYPE_CTRL_SRVR_ASK_FOR_RENDERER_STATE",
             Self::CtrlSrvrSetAutoplayMode => "MESSAGE_TYPE_CTRL_SRVR_SET_AUTOPLAY_MODE",
-            Self::CtrlSrvrAutoplayLoadTracks => {
-                "MESSAGE_TYPE_CTRL_SRVR_AUTOPLAY_LOAD_TRACKS"
-            }
-            Self::CtrlSrvrAutoplayRemoveTracks => {
-                "MESSAGE_TYPE_CTRL_SRVR_AUTOPLAY_REMOVE_TRACKS"
-            }
+            Self::CtrlSrvrAutoplayLoadTracks => "MESSAGE_TYPE_CTRL_SRVR_AUTOPLAY_LOAD_TRACKS",
+            Self::CtrlSrvrAutoplayRemoveTracks => "MESSAGE_TYPE_CTRL_SRVR_AUTOPLAY_REMOVE_TRACKS",
             Self::SrvrCtrlSessionState => "MESSAGE_TYPE_SRVR_CTRL_SESSION_STATE",
-            Self::SrvrCtrlRendererStateUpdated => {
-                "MESSAGE_TYPE_SRVR_CTRL_RENDERER_STATE_UPDATED"
-            }
+            Self::SrvrCtrlRendererStateUpdated => "MESSAGE_TYPE_SRVR_CTRL_RENDERER_STATE_UPDATED",
             Self::SrvrCtrlAddRenderer => "MESSAGE_TYPE_SRVR_CTRL_ADD_RENDERER",
             Self::SrvrCtrlUpdateRenderer => "MESSAGE_TYPE_SRVR_CTRL_UPDATE_RENDERER",
             Self::SrvrCtrlRemoveRenderer => "MESSAGE_TYPE_SRVR_CTRL_REMOVE_RENDERER",
-            Self::SrvrCtrlActiveRendererChanged => {
-                "MESSAGE_TYPE_SRVR_CTRL_ACTIVE_RENDERER_CHANGED"
-            }
+            Self::SrvrCtrlActiveRendererChanged => "MESSAGE_TYPE_SRVR_CTRL_ACTIVE_RENDERER_CHANGED",
             Self::SrvrCtrlVolumeChanged => "MESSAGE_TYPE_SRVR_CTRL_VOLUME_CHANGED",
-            Self::SrvrCtrlQueueErrorMessage => {
-                "MESSAGE_TYPE_SRVR_CTRL_QUEUE_ERROR_MESSAGE"
-            }
+            Self::SrvrCtrlQueueErrorMessage => "MESSAGE_TYPE_SRVR_CTRL_QUEUE_ERROR_MESSAGE",
             Self::SrvrCtrlQueueCleared => "MESSAGE_TYPE_SRVR_CTRL_QUEUE_CLEARED",
             Self::SrvrCtrlQueueState => "MESSAGE_TYPE_SRVR_CTRL_QUEUE_STATE",
-            Self::SrvrCtrlQueueTracksLoaded => {
-                "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_LOADED"
-            }
-            Self::SrvrCtrlQueueTracksInserted => {
-                "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_INSERTED"
-            }
+            Self::SrvrCtrlQueueTracksLoaded => "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_LOADED",
+            Self::SrvrCtrlQueueTracksInserted => "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_INSERTED",
             Self::SrvrCtrlQueueTracksAdded => "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_ADDED",
-            Self::SrvrCtrlQueueTracksRemoved => {
-                "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_REMOVED"
-            }
-            Self::SrvrCtrlQueueTracksReordered => {
-                "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_REORDERED"
-            }
+            Self::SrvrCtrlQueueTracksRemoved => "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_REMOVED",
+            Self::SrvrCtrlQueueTracksReordered => "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_REORDERED",
             Self::SrvrCtrlShuffleModeSet => "MESSAGE_TYPE_SRVR_CTRL_SHUFFLE_MODE_SET",
             Self::SrvrCtrlLoopModeSet => "MESSAGE_TYPE_SRVR_CTRL_LOOP_MODE_SET",
             Self::SrvrCtrlVolumeMuted => "MESSAGE_TYPE_SRVR_CTRL_VOLUME_MUTED",
@@ -1513,12 +1442,8 @@ impl MessageType {
                 "MESSAGE_TYPE_SRVR_CTRL_DEVICE_AUDIO_QUALITY_CHANGED"
             }
             Self::SrvrCtrlAutoplayModeSet => "MESSAGE_TYPE_SRVR_CTRL_AUTOPLAY_MODE_SET",
-            Self::SrvrCtrlAutoplayTracksLoaded => {
-                "MESSAGE_TYPE_SRVR_CTRL_AUTOPLAY_TRACKS_LOADED"
-            }
-            Self::SrvrCtrlAutoplayTracksRemoved => {
-                "MESSAGE_TYPE_SRVR_CTRL_AUTOPLAY_TRACKS_REMOVED"
-            }
+            Self::SrvrCtrlAutoplayTracksLoaded => "MESSAGE_TYPE_SRVR_CTRL_AUTOPLAY_TRACKS_LOADED",
+            Self::SrvrCtrlAutoplayTracksRemoved => "MESSAGE_TYPE_SRVR_CTRL_AUTOPLAY_TRACKS_REMOVED",
             Self::SrvrCtrlQueueTracksAddedFromAutoplay => {
                 "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_ADDED_FROM_AUTOPLAY"
             }
@@ -1532,13 +1457,9 @@ impl MessageType {
             "MESSAGE_TYPE_PLAYBACK_ERROR" => Some(Self::PlaybackError),
             "MESSAGE_TYPE_AUTHENTICATE" => Some(Self::Authenticate),
             "MESSAGE_TYPE_RNDR_SRVR_JOIN_SESSION" => Some(Self::RndrSrvrJoinSession),
-            "MESSAGE_TYPE_RNDR_SRVR_DEVICE_INFO_UPDATED" => {
-                Some(Self::RndrSrvrDeviceInfoUpdated)
-            }
+            "MESSAGE_TYPE_RNDR_SRVR_DEVICE_INFO_UPDATED" => Some(Self::RndrSrvrDeviceInfoUpdated),
             "MESSAGE_TYPE_RNDR_SRVR_STATE_UPDATED" => Some(Self::RndrSrvrStateUpdated),
-            "MESSAGE_TYPE_RNDR_SRVR_RENDERER_ACTION" => {
-                Some(Self::RndrSrvrRendererAction)
-            }
+            "MESSAGE_TYPE_RNDR_SRVR_RENDERER_ACTION" => Some(Self::RndrSrvrRendererAction),
             "MESSAGE_TYPE_RNDR_SRVR_VOLUME_CHANGED" => Some(Self::RndrSrvrVolumeChanged),
             "MESSAGE_TYPE_RNDR_SRVR_FILE_AUDIO_QUALITY_CHANGED" => {
                 Some(Self::RndrSrvrFileAudioQualityChanged)
@@ -1557,55 +1478,31 @@ impl MessageType {
                 Some(Self::SrvrRndrSetMaxAudioQuality)
             }
             "MESSAGE_TYPE_SRVR_RNDR_SET_LOOP_MODE" => Some(Self::SrvrRndrSetLoopMode),
-            "MESSAGE_TYPE_SRVR_RNDR_SET_SHUFFLE_MODE" => {
-                Some(Self::SrvrRndrSetShuffleMode)
-            }
+            "MESSAGE_TYPE_SRVR_RNDR_SET_SHUFFLE_MODE" => Some(Self::SrvrRndrSetShuffleMode),
             "MESSAGE_TYPE_SRVR_RNDR_MUTE_VOLUME" => Some(Self::SrvrRndrMuteVolume),
             "MESSAGE_TYPE_CTRL_SRVR_JOIN_SESSION" => Some(Self::CtrlSrvrJoinSession),
-            "MESSAGE_TYPE_CTRL_SRVR_SET_PLAYER_STATE" => {
-                Some(Self::CtrlSrvrSetPlayerState)
-            }
-            "MESSAGE_TYPE_CTRL_SRVR_SET_ACTIVE_RENDERER" => {
-                Some(Self::CtrlSrvrSetActiveRenderer)
-            }
+            "MESSAGE_TYPE_CTRL_SRVR_SET_PLAYER_STATE" => Some(Self::CtrlSrvrSetPlayerState),
+            "MESSAGE_TYPE_CTRL_SRVR_SET_ACTIVE_RENDERER" => Some(Self::CtrlSrvrSetActiveRenderer),
             "MESSAGE_TYPE_CTRL_SRVR_SET_VOLUME" => Some(Self::CtrlSrvrSetVolume),
             "MESSAGE_TYPE_CTRL_SRVR_CLEAR_QUEUE" => Some(Self::CtrlSrvrClearQueue),
-            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_LOAD_TRACKS" => {
-                Some(Self::CtrlSrvrQueueLoadTracks)
-            }
-            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_INSERT_TRACKS" => {
-                Some(Self::CtrlSrvrQueueInsertTracks)
-            }
-            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_ADD_TRACKS" => {
-                Some(Self::CtrlSrvrQueueAddTracks)
-            }
-            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_REMOVE_TRACKS" => {
-                Some(Self::CtrlSrvrQueueRemoveTracks)
-            }
-            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_REORDER_TRACKS" => {
-                Some(Self::CtrlSrvrQueueReorderTracks)
-            }
-            "MESSAGE_TYPE_CTRL_SRVR_SET_SHUFFLE_MODE" => {
-                Some(Self::CtrlSrvrSetShuffleMode)
-            }
+            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_LOAD_TRACKS" => Some(Self::CtrlSrvrQueueLoadTracks),
+            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_INSERT_TRACKS" => Some(Self::CtrlSrvrQueueInsertTracks),
+            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_ADD_TRACKS" => Some(Self::CtrlSrvrQueueAddTracks),
+            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_REMOVE_TRACKS" => Some(Self::CtrlSrvrQueueRemoveTracks),
+            "MESSAGE_TYPE_CTRL_SRVR_QUEUE_REORDER_TRACKS" => Some(Self::CtrlSrvrQueueReorderTracks),
+            "MESSAGE_TYPE_CTRL_SRVR_SET_SHUFFLE_MODE" => Some(Self::CtrlSrvrSetShuffleMode),
             "MESSAGE_TYPE_CTRL_SRVR_SET_LOOP_MODE" => Some(Self::CtrlSrvrSetLoopMode),
             "MESSAGE_TYPE_CTRL_SRVR_MUTE_VOLUME" => Some(Self::CtrlSrvrMuteVolume),
             "MESSAGE_TYPE_CTRL_SRVR_SET_MAX_AUDIO_QUALITY" => {
                 Some(Self::CtrlSrvrSetMaxAudioQuality)
             }
             "MESSAGE_TYPE_CTRL_SRVR_SET_QUEUE_STATE" => Some(Self::CtrlSrvrSetQueueState),
-            "MESSAGE_TYPE_CTRL_SRVR_ASK_FOR_QUEUE_STATE" => {
-                Some(Self::CtrlSrvrAskForQueueState)
-            }
+            "MESSAGE_TYPE_CTRL_SRVR_ASK_FOR_QUEUE_STATE" => Some(Self::CtrlSrvrAskForQueueState),
             "MESSAGE_TYPE_CTRL_SRVR_ASK_FOR_RENDERER_STATE" => {
                 Some(Self::CtrlSrvrAskForRendererState)
             }
-            "MESSAGE_TYPE_CTRL_SRVR_SET_AUTOPLAY_MODE" => {
-                Some(Self::CtrlSrvrSetAutoplayMode)
-            }
-            "MESSAGE_TYPE_CTRL_SRVR_AUTOPLAY_LOAD_TRACKS" => {
-                Some(Self::CtrlSrvrAutoplayLoadTracks)
-            }
+            "MESSAGE_TYPE_CTRL_SRVR_SET_AUTOPLAY_MODE" => Some(Self::CtrlSrvrSetAutoplayMode),
+            "MESSAGE_TYPE_CTRL_SRVR_AUTOPLAY_LOAD_TRACKS" => Some(Self::CtrlSrvrAutoplayLoadTracks),
             "MESSAGE_TYPE_CTRL_SRVR_AUTOPLAY_REMOVE_TRACKS" => {
                 Some(Self::CtrlSrvrAutoplayRemoveTracks)
             }
@@ -1614,39 +1511,25 @@ impl MessageType {
                 Some(Self::SrvrCtrlRendererStateUpdated)
             }
             "MESSAGE_TYPE_SRVR_CTRL_ADD_RENDERER" => Some(Self::SrvrCtrlAddRenderer),
-            "MESSAGE_TYPE_SRVR_CTRL_UPDATE_RENDERER" => {
-                Some(Self::SrvrCtrlUpdateRenderer)
-            }
-            "MESSAGE_TYPE_SRVR_CTRL_REMOVE_RENDERER" => {
-                Some(Self::SrvrCtrlRemoveRenderer)
-            }
+            "MESSAGE_TYPE_SRVR_CTRL_UPDATE_RENDERER" => Some(Self::SrvrCtrlUpdateRenderer),
+            "MESSAGE_TYPE_SRVR_CTRL_REMOVE_RENDERER" => Some(Self::SrvrCtrlRemoveRenderer),
             "MESSAGE_TYPE_SRVR_CTRL_ACTIVE_RENDERER_CHANGED" => {
                 Some(Self::SrvrCtrlActiveRendererChanged)
             }
             "MESSAGE_TYPE_SRVR_CTRL_VOLUME_CHANGED" => Some(Self::SrvrCtrlVolumeChanged),
-            "MESSAGE_TYPE_SRVR_CTRL_QUEUE_ERROR_MESSAGE" => {
-                Some(Self::SrvrCtrlQueueErrorMessage)
-            }
+            "MESSAGE_TYPE_SRVR_CTRL_QUEUE_ERROR_MESSAGE" => Some(Self::SrvrCtrlQueueErrorMessage),
             "MESSAGE_TYPE_SRVR_CTRL_QUEUE_CLEARED" => Some(Self::SrvrCtrlQueueCleared),
             "MESSAGE_TYPE_SRVR_CTRL_QUEUE_STATE" => Some(Self::SrvrCtrlQueueState),
-            "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_LOADED" => {
-                Some(Self::SrvrCtrlQueueTracksLoaded)
-            }
+            "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_LOADED" => Some(Self::SrvrCtrlQueueTracksLoaded),
             "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_INSERTED" => {
                 Some(Self::SrvrCtrlQueueTracksInserted)
             }
-            "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_ADDED" => {
-                Some(Self::SrvrCtrlQueueTracksAdded)
-            }
-            "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_REMOVED" => {
-                Some(Self::SrvrCtrlQueueTracksRemoved)
-            }
+            "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_ADDED" => Some(Self::SrvrCtrlQueueTracksAdded),
+            "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_REMOVED" => Some(Self::SrvrCtrlQueueTracksRemoved),
             "MESSAGE_TYPE_SRVR_CTRL_QUEUE_TRACKS_REORDERED" => {
                 Some(Self::SrvrCtrlQueueTracksReordered)
             }
-            "MESSAGE_TYPE_SRVR_CTRL_SHUFFLE_MODE_SET" => {
-                Some(Self::SrvrCtrlShuffleModeSet)
-            }
+            "MESSAGE_TYPE_SRVR_CTRL_SHUFFLE_MODE_SET" => Some(Self::SrvrCtrlShuffleModeSet),
             "MESSAGE_TYPE_SRVR_CTRL_LOOP_MODE_SET" => Some(Self::SrvrCtrlLoopModeSet),
             "MESSAGE_TYPE_SRVR_CTRL_VOLUME_MUTED" => Some(Self::SrvrCtrlVolumeMuted),
             "MESSAGE_TYPE_SRVR_CTRL_MAX_AUDIO_QUALITY_CHANGED" => {
@@ -1658,9 +1541,7 @@ impl MessageType {
             "MESSAGE_TYPE_SRVR_CTRL_DEVICE_AUDIO_QUALITY_CHANGED" => {
                 Some(Self::SrvrCtrlDeviceAudioQualityChanged)
             }
-            "MESSAGE_TYPE_SRVR_CTRL_AUTOPLAY_MODE_SET" => {
-                Some(Self::SrvrCtrlAutoplayModeSet)
-            }
+            "MESSAGE_TYPE_SRVR_CTRL_AUTOPLAY_MODE_SET" => Some(Self::SrvrCtrlAutoplayModeSet),
             "MESSAGE_TYPE_SRVR_CTRL_AUTOPLAY_TRACKS_LOADED" => {
                 Some(Self::SrvrCtrlAutoplayTracksLoaded)
             }

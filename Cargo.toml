@@ -9,10 +9,15 @@ repository = "https://github.com/ciaens/qobuz-connect"
 keywords = ["qobuz", "connect", "protobuf", "websocket", "audio"]
 categories = ["network-programming", "multimedia::audio"]
 readme = "README.md"
-exclude = ["/tools", "/docs", "/ROADMAP.md", "/.github"]
+exclude = ["/tools", "/docs", "/.github"]
 
 [dependencies]
+futures-util = { version = "0.3", default-features = false, features = ["sink"] }
 prost = "0.13"
+rustls = { version = "0.23", default-features = false, features = ["ring"] }
+tokio = { version = "1", features = ["macros", "net", "rt", "sync", "time"] }
+tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
+tracing = "0.1"
 
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }

@@ -1,0 +1,118 @@
+#![allow(clippy::unwrap_used, clippy::panic)]
+
+use futures_util::{SinkExt as _, StreamExt as _};
+use qobuz_connect::proto::qcloud::Disconnect;
+use qobuz_connect::proto::qconnect::{self, MessageType, QConnectMessage};
+use qobuz_connect::wire::{self, Frame};
+use qobuz_connect::{Credentials, Event, Transport};
+use tokio::net::{TcpListener, TcpStream};
+use tokio::sync::mpsc;
+use tokio_tungstenite::WebSocketStream;
+use tokio_tungstenite::tungstenite::Message;
+
+type Server = WebSocketStream<TcpStream>;
+
+async fn listen() -> (Credentials, mpsc::Receiver<Server>) {
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let endpoint = format!("ws://{}", listener.local_addr().unwrap());
+    let (sender, receiver) = mpsc::channel(4);
+    tokio::spawn(async move {
+        while let Ok((stream, _)) = listener.accept().await {
+            let socket = tokio_tungstenite::accept_async(stream).await.unwrap();
+            if sender.send(socket).await.is_err() {
+                break;
+            }
+        }
+    });
+    let credentials = Credentials {
+        endpoint,
+        jwt: "jwt".to_owned(),
+    };
+    (credentials, receiver)
+}
+
+async fn frames(server: &mut Server) -> Vec<Frame> {
+    match server.next().await {
+        Some(Ok(Message::Binary(bytes))) => wire::decode(&bytes).unwrap(),
+        other => panic!("expected a binary message, got {other:?}"),
+    }
+}
+
+fn error_message(code: &str) -> QConnectMessage {
+    QConnectMessage {
+        message_type: MessageType::Error.into(),
+        error: Some(qconnect::Error {
+            code: code.to_owned(),
+            message: String::new(),
+        }),
+        ..Default::default()
+    }
+}
+
+#[tokio::test]
+async fn authenticates_subscribes_and_exchanges_payloads() {
+    let (credentials, mut connections) = listen().await;
+    let mut transport = Transport::connect(credentials).await.unwrap();
+    let mut server = connections.recv().await.unwrap();
+
+    let handshake = frames(&mut server).await;
+    assert!(matches!(
+        handshake.as_slice(),
+        [Frame::Authenticate(auth), Frame::Subscribe(sub)]
+            if auth.jwt == "jwt" && sub.proto == wire::PROTO_QCONNECT && sub.channels.is_empty()
+    ));
+
+    let inbound = error_message("in");
+    let frame = wire::payload(7, 1, vec![inbound.clone()]);
+    server
+        .send(Message::binary(wire::encode(&[frame])))
+        .await
+        .unwrap();
+    assert!(matches!(transport.recv().await, Some(Event::Message(message)) if *message == inbound));
+
+    let outbound = error_message("out");
+    transport.send(vec![outbound.clone()]).await.unwrap();
+    let sent = frames(&mut server).await;
+    let [Frame::Payload(payload)] = sent.as_slice() else {
+        panic!("expected one payload frame, got {sent:?}");
+    };
+    assert_eq!(payload.dests, vec![wire::BACKEND_CHANNEL.to_vec()]);
+    assert_eq!(wire::messages(payload).unwrap(), vec![outbound]);
+}
+
+#[tokio::test]
+async fn reconnects_after_the_connection_drops() {
+    let (credentials, mut connections) = listen().await;
+    let mut transport = Transport::connect(credentials).await.unwrap();
+    let mut first = connections.recv().await.unwrap();
+    frames(&mut first).await;
+    drop(first);
+
+    assert!(matches!(transport.recv().await, Some(Event::Disconnected)));
+    let mut second = connections.recv().await.unwrap();
+    let handshake = frames(&mut second).await;
+    assert!(matches!(
+        handshake.as_slice(),
+        [Frame::Authenticate(_), Frame::Subscribe(_)]
+    ));
+    assert!(matches!(transport.recv().await, Some(Event::Reconnected)));
+}
+
+#[tokio::test]
+async fn stops_when_the_server_refuses_reconnection() {
+    let (credentials, mut connections) = listen().await;
+    let mut transport = Transport::connect(credentials).await.unwrap();
+    let mut server = connections.recv().await.unwrap();
+    frames(&mut server).await;
+
+    let refusal = Frame::Disconnect(Disconnect {
+        msg_id: 1,
+        msg_date: 0,
+        reconnect: false,
+    });
+    server
+        .send(Message::binary(wire::encode(&[refusal])))
+        .await
+        .unwrap();
+    assert!(transport.recv().await.is_none());
+}

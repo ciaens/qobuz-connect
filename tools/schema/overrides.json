@@ -1,0 +1,13 @@
+{
+ "qn": "QueueRendererState",
+ "Fr": "RendererState",
+ "Bt": "QueueVersion",
+ "yr": "TrackRef",
+ "qt": "QueueTrack",
+ "Ht": "QueueTrackRef",
+ "zt": "Position",
+ "$t": "QueueItemRef",
+ "__enums__": {
+  "Gn": "MessageType"
+ }
+}

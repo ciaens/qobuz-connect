@@ -36,10 +36,10 @@ pub struct Payload {
     pub msg_id: u32,
     #[prost(uint64, tag = "2")]
     pub msg_date: u64,
-    #[prost(uint32, tag = "3")]
-    pub proto: u32,
-    #[prost(bytes = "vec", tag = "4")]
-    pub src: ::prost::alloc::vec::Vec<u8>,
+    #[prost(uint32, optional, tag = "3")]
+    pub proto: ::core::option::Option<u32>,
+    #[prost(bytes = "vec", optional, tag = "4")]
+    pub src: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
     #[prost(bytes = "vec", repeated, tag = "5")]
     pub dests: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
     #[prost(bytes = "vec", tag = "7")]

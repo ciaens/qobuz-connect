@@ -73,7 +73,8 @@ def parse_fields(sym, body):
     fields = []
     consumed = body
     for kind, rx in FIELD_PATTERNS:
-        for m in rx.finditer(body):
+        matches = list(rx.finditer(consumed))
+        for m in matches:
             if kind == "repeated_message":
                 name, ref, tag = m.group(1), m.group(2), int(m.group(3))
                 fields.append(dict(name=name, number=tag >> 3, kind="message", ref=ref, repeated=True, optional=False))

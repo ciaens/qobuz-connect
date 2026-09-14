@@ -9,6 +9,8 @@ pub enum Error {
     Connect(tungstenite::Error),
     /// The transport task has ended, nothing can be sent any more.
     Closed,
+    /// The server has not registered this device as a renderer yet.
+    NotRegistered,
 }
 
 impl fmt::Display for Error {
@@ -16,6 +18,7 @@ impl fmt::Display for Error {
         match self {
             Self::Connect(err) => write!(f, "connecting to Qobuz Connect failed: {err}"),
             Self::Closed => f.write_str("the Qobuz Connect transport is closed"),
+            Self::NotRegistered => f.write_str("the device is not registered as a renderer yet"),
         }
     }
 }
@@ -24,7 +27,7 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Connect(err) => Some(err),
-            Self::Closed => None,
+            Self::Closed | Self::NotRegistered => None,
         }
     }
 }

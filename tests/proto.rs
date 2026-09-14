@@ -38,7 +38,7 @@ fn envelope_tags_follow_the_web_player() {
     let action = QConnectMessage {
         message_type: MessageType::RndrSrvrRendererAction.into(),
         rndr_srvr_renderer_action: Some(RndrSrvrRendererAction {
-            seek_position: 1500,
+            seek_position: Some(1500),
             action: ActionType::Seek.into(),
         }),
         ..Default::default()
@@ -49,13 +49,13 @@ fn envelope_tags_follow_the_web_player() {
 #[test]
 fn batch_round_trips() {
     let state = SrvrRndrSetState {
-        playing_state: PlayingState::Playing.into(),
-        current_position: 42,
+        playing_state: Some(PlayingState::Playing.into()),
+        current_position: Some(42),
         queue_version: Some(QueueVersion { major: 3, minor: 2 }),
         current_track: Some(QueueTrackRef {
             queue_item_id: 5,
             track_id: 388_712_168,
-            context_uuid: Vec::new(),
+            context_uuid: None,
         }),
         next_track: None,
     };

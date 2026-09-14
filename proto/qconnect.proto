@@ -211,17 +211,17 @@ message QueueTrack {
 message QueueTrackRef {
   int32 queue_item_id = 1;
   fixed32 track_id = 2;
-  bytes context_uuid = 3;
+  optional bytes context_uuid = 3;
 }
 
 message CtrlSrvrJoinSession {
-  bytes session_uuid = 1;
+  optional bytes session_uuid = 1;
   DeviceInfo device_info = 2;
 }
 
 message CtrlSrvrSetPlayerState {
-  PlayingState playing_state = 1;
-  uint32 current_position = 2;
+  optional PlayingState playing_state = 1;
+  optional uint32 current_position = 2;
   QueueItemRef current_queue_item = 3;
 }
 
@@ -236,8 +236,8 @@ message CtrlSrvrSetActiveRenderer {
 
 message CtrlSrvrSetVolume {
   int32 renderer_id = 1;
-  uint32 volume = 2;
-  int32 volume_delta = 3;
+  optional uint32 volume = 2;
+  optional int32 volume_delta = 3;
 }
 
 message CtrlSrvrMuteVolume {
@@ -265,7 +265,7 @@ message CtrlSrvrSetMaxAudioQuality {
 message SrvrCtrlMaxAudioQualityChanged {
   int32 renderer_id = 1;
   AudioQuality max_audio_quality = 2;
-  NetworkType network_type = 3;
+  optional NetworkType network_type = 3;
 }
 
 message SrvrCtrlFileAudioQualityChanged {
@@ -318,9 +318,9 @@ message CtrlSrvrQueueLoadTracks {
   bytes action_uuid = 2;
   repeated fixed32 track_ids = 3;
   uint32 queue_position = 4;
-  fixed32 shuffle_seed = 5;
-  int32 shuffle_pivot_index = 6;
-  bool shuffle_mode = 7;
+  optional fixed32 shuffle_seed = 5;
+  optional int32 shuffle_pivot_index = 6;
+  optional bool shuffle_mode = 7;
   bytes context_uuid = 8;
   bool autoplay_reset = 9;
   bool autoplay_loading = 10;
@@ -330,8 +330,8 @@ message CtrlSrvrQueueInsertTracks {
   QueueVersion queue_version_ref = 1;
   bytes action_uuid = 2;
   repeated fixed32 track_ids = 3;
-  int32 insert_after = 4;
-  fixed32 shuffle_seed = 5;
+  optional int32 insert_after = 4;
+  optional fixed32 shuffle_seed = 5;
   bytes context_uuid = 6;
   bool autoplay_reset = 7;
   bool autoplay_loading = 8;
@@ -341,7 +341,7 @@ message CtrlSrvrQueueAddTracks {
   QueueVersion queue_version_ref = 1;
   bytes action_uuid = 2;
   repeated fixed32 track_ids = 3;
-  fixed32 shuffle_seed = 4;
+  optional fixed32 shuffle_seed = 4;
   bytes context_uuid = 5;
   bool autoplay_reset = 6;
   bool autoplay_loading = 7;
@@ -359,7 +359,7 @@ message CtrlSrvrQueueReorderTracks {
   QueueVersion queue_version_ref = 1;
   bytes action_uuid = 2;
   repeated int32 queue_item_ids = 3;
-  int32 insert_after = 4;
+  optional int32 insert_after = 4;
   bool autoplay_reset = 5;
   bool autoplay_loading = 6;
 }
@@ -368,8 +368,8 @@ message CtrlSrvrSetShuffleMode {
   QueueVersion queue_version_ref = 1;
   bytes action_uuid = 2;
   bool shuffle_mode = 3;
-  fixed32 shuffle_seed = 4;
-  int32 shuffle_pivot_queue_item_id = 5;
+  optional fixed32 shuffle_seed = 4;
+  optional int32 shuffle_pivot_queue_item_id = 5;
   bool autoplay_reset = 6;
   bool autoplay_loading = 7;
 }
@@ -443,14 +443,14 @@ message SrvrCtrlLoopModeSet {
 
 message SrvrCtrlQueueState {
   QueueVersion queue_version = 1;
-  bytes action_uuid = 2;
+  optional bytes action_uuid = 2;
   repeated QueueTrackRef tracks = 3;
   bool shuffle_mode = 4;
   repeated uint32 shuffled_track_indexes = 5;
   bool autoplay_mode = 6;
   bool autoplay_loading = 7;
   repeated QueueTrackRef autoplay_tracks = 8;
-  bytes queue_hash = 100;
+  optional bytes queue_hash = 100;
 }
 
 message SrvrCtrlQueueCleared {
@@ -463,23 +463,23 @@ message SrvrCtrlQueueTracksLoaded {
   bytes action_uuid = 2;
   repeated QueueTrack tracks = 3;
   uint32 queue_position = 4;
-  fixed32 shuffle_seed = 5;
-  int32 shuffle_pivot_queue_item_id = 6;
-  bool shuffle_mode = 7;
+  optional fixed32 shuffle_seed = 5;
+  optional int32 shuffle_pivot_queue_item_id = 6;
+  optional bool shuffle_mode = 7;
   bytes context_uuid = 8;
   bool autoplay_reset = 9;
   bool autoplay_loading = 10;
-  bytes queue_hash = 100;
+  optional bytes queue_hash = 100;
 }
 
 message SrvrCtrlQueueTracksReordered {
   QueueVersion queue_version = 1;
   bytes action_uuid = 2;
   repeated int32 queue_item_ids = 3;
-  int32 insert_after = 4;
+  optional int32 insert_after = 4;
   bool autoplay_reset = 5;
   bool autoplay_loading = 6;
-  bytes queue_hash = 100;
+  optional bytes queue_hash = 100;
 }
 
 message SrvrCtrlQueueTracksRemoved {
@@ -488,47 +488,47 @@ message SrvrCtrlQueueTracksRemoved {
   repeated int32 queue_item_ids = 3;
   bool autoplay_reset = 4;
   bool autoplay_loading = 5;
-  bytes queue_hash = 100;
+  optional bytes queue_hash = 100;
 }
 
 message SrvrCtrlQueueTracksAdded {
   QueueVersion queue_version = 1;
   bytes action_uuid = 2;
   repeated QueueTrack tracks = 3;
-  fixed32 shuffle_seed = 4;
+  optional fixed32 shuffle_seed = 4;
   bytes context_uuid = 5;
   bool autoplay_reset = 6;
   bool autoplay_loading = 7;
-  bytes queue_hash = 100;
+  optional bytes queue_hash = 100;
 }
 
 message SrvrCtrlQueueTracksAddedFromAutoplay {
   QueueVersion queue_version = 1;
   repeated int32 queue_item_ids = 2;
-  bytes queue_hash = 100;
+  optional bytes queue_hash = 100;
 }
 
 message SrvrCtrlQueueTracksInserted {
   QueueVersion queue_version = 1;
   bytes action_uuid = 2;
   repeated QueueTrack tracks = 3;
-  int32 insert_after = 4;
-  fixed32 shuffle_seed = 5;
+  optional int32 insert_after = 4;
+  optional fixed32 shuffle_seed = 5;
   bytes context_uuid = 6;
   bool autoplay_reset = 7;
   bool autoplay_loading = 8;
-  bytes queue_hash = 100;
+  optional bytes queue_hash = 100;
 }
 
 message SrvrCtrlShuffleModeSet {
   QueueVersion queue_version = 1;
   bytes action_uuid = 2;
   bool shuffle_mode = 3;
-  fixed32 shuffle_seed = 4;
-  int32 shuffle_pivot_queue_item_id = 5;
+  optional fixed32 shuffle_seed = 4;
+  optional int32 shuffle_pivot_queue_item_id = 5;
   bool autoplay_reset = 6;
   bool autoplay_loading = 7;
-  bytes queue_hash = 100;
+  optional bytes queue_hash = 100;
 }
 
 message SrvrCtrlAutoplayModeSet {
@@ -563,7 +563,7 @@ message RndrSrvrJoinSession {
   DeviceInfo device_info = 2;
   JoinSessionReason reason = 3;
   QueueRendererState initial_state = 4;
-  bool is_active = 5;
+  optional bool is_active = 5;
 }
 
 message RndrSrvrDeviceInfoUpdated {
@@ -575,7 +575,7 @@ message RndrSrvrStateUpdated {
 }
 
 message RndrSrvrRendererAction {
-  uint32 seek_position = 1;
+  optional uint32 seek_position = 1;
   ActionType action = 2;
 }
 
@@ -589,7 +589,7 @@ message RndrSrvrVolumeMuted {
 
 message RndrSrvrMaxAudioQualityChanged {
   AudioQuality max_audio_quality = 1;
-  NetworkType network_type = 2;
+  optional NetworkType network_type = 2;
 }
 
 message RndrSrvrFileAudioQualityChanged {
@@ -606,16 +606,16 @@ message RndrSrvrDeviceAudioQualityChanged {
 }
 
 message SrvrRndrSetState {
-  PlayingState playing_state = 1;
-  uint32 current_position = 2;
+  optional PlayingState playing_state = 1;
+  optional uint32 current_position = 2;
   QueueVersion queue_version = 3;
   QueueTrackRef current_track = 4;
   QueueTrackRef next_track = 5;
 }
 
 message SrvrRndrSetVolume {
-  uint32 volume = 1;
-  int32 volume_delta = 2;
+  optional uint32 volume = 1;
+  optional int32 volume_delta = 2;
 }
 
 message SrvrRndrMuteVolume {

@@ -66,7 +66,7 @@ Bundle line numbers refer to `web-bundle.js` as dumped on 2026-09-14. Field labe
   - 3: only in bundle: ` uint32 nb_channels`
 - `RndrSrvrMaxAudioQualityChanged` (bundle line 282292)
   - 1 `max_audio_quality`: name `max_audio_quality` vs `value`
-  - 2: only in bundle: ` NetworkType network_type`
+  - 2: only in bundle: `optional NetworkType network_type`
 - `SrvrRndrSetState` (bundle line 282481)
   - 4 `current_track`: name `current_track` vs `current_queue_item`
   - 5 `next_track`: name `next_track` vs `next_queue_item`
@@ -183,7 +183,7 @@ Bundle line numbers refer to `web-bundle.js` as dumped on 2026-09-14. Field labe
 - `SrvrCtrlMaxAudioQualityChanged` (bundle line 278617)
   - 1 `renderer_id`: name `renderer_id` vs `max_audio_quality`
   - 2: only in bundle: ` AudioQuality max_audio_quality`
-  - 3: only in bundle: ` NetworkType network_type`
+  - 3: only in bundle: `optional NetworkType network_type`
 - `SrvrCtrlFileAudioQualityChanged` (bundle line 278680)
   - 1 `renderer_id`: name `renderer_id` vs `file_audio_quality`
   - 2: only in bundle: ` uint32 sampling_rate`

@@ -47,8 +47,8 @@ message Unsubscribe {
 message Payload {
   uint32 msg_id = 1;
   uint64 msg_date = 2;
-  uint32 proto = 3;
-  bytes src = 4;
+  optional uint32 proto = 3;
+  optional bytes src = 4;
   repeated bytes dests = 5;
   bytes payload = 7;
 }

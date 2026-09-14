@@ -119,8 +119,8 @@ pub fn payload(msg_id: u32, batch_id: i32, messages: Vec<QConnectMessage>) -> Fr
     Frame::Payload(Payload {
         msg_id,
         msg_date: now_ms(),
-        proto: PROTO_QCONNECT,
-        src: Vec::new(),
+        proto: Some(PROTO_QCONNECT),
+        src: None,
         dests: vec![BACKEND_CHANNEL.to_vec()],
         payload: batch.encode_to_vec(),
     })
@@ -131,7 +131,7 @@ pub fn messages(payload: &Payload) -> Result<Vec<QConnectMessage>, prost::Decode
     QConnectBatch::decode(payload.payload.as_slice()).map(|batch| batch.messages)
 }
 
-fn now_ms() -> u64 {
+pub(crate) fn now_ms() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_or(0, |elapsed| {
@@ -181,7 +181,7 @@ mod tests {
             frame.as_ref().map(|f| f.dests.clone()),
             Some(vec![BACKEND_CHANNEL.to_vec()])
         );
-        assert_eq!(frame.as_ref().map(|f| f.proto), Some(PROTO_QCONNECT));
+        assert_eq!(frame.as_ref().map(|f| f.proto), Some(Some(PROTO_QCONNECT)));
         assert_eq!(
             frame.as_ref().and_then(|f| super::messages(f).ok()),
             Some(messages)

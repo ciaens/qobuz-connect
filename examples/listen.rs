@@ -4,7 +4,7 @@ use qobuz_connect::proto::qconnect::{
     AudioQuality, CtrlSrvrJoinSession, DeviceCapabilities, DeviceInfo, DeviceType, MessageType,
     QConnectMessage, VolumeRemoteControl,
 };
-use qobuz_connect::{Credentials, Event, Transport};
+use qobuz_connect::{Credentials, Transport, TransportEvent};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -26,9 +26,9 @@ async fn main() {
     }
     while let Some(event) = transport.recv().await {
         match event {
-            Event::Message(message) => println!("{message:#?}"),
-            Event::Disconnected => println!("disconnected"),
-            Event::Reconnected => {
+            TransportEvent::Message(message) => println!("{message:#?}"),
+            TransportEvent::Disconnected => println!("disconnected"),
+            TransportEvent::Reconnected => {
                 println!("reconnected");
                 if transport.send(vec![join(&name)]).await.is_err() {
                     return;
@@ -49,7 +49,7 @@ fn join(name: &str) -> QConnectMessage {
     QConnectMessage {
         message_type: MessageType::CtrlSrvrJoinSession.into(),
         ctrl_srvr_join_session: Some(CtrlSrvrJoinSession {
-            session_uuid: Vec::new(),
+            session_uuid: None,
             device_info: Some(DeviceInfo {
                 device_uuid: device_uuid(name),
                 friendly_name: name.to_owned(),

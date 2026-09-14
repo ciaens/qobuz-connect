@@ -75,22 +75,22 @@ pub struct QueueTrackRef {
     pub queue_item_id: i32,
     #[prost(fixed32, tag = "2")]
     pub track_id: u32,
-    #[prost(bytes = "vec", tag = "3")]
-    pub context_uuid: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "3")]
+    pub context_uuid: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CtrlSrvrJoinSession {
-    #[prost(bytes = "vec", tag = "1")]
-    pub session_uuid: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "1")]
+    pub session_uuid: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
     #[prost(message, optional, tag = "2")]
     pub device_info: ::core::option::Option<DeviceInfo>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CtrlSrvrSetPlayerState {
-    #[prost(enumeration = "PlayingState", tag = "1")]
-    pub playing_state: i32,
-    #[prost(uint32, tag = "2")]
-    pub current_position: u32,
+    #[prost(enumeration = "PlayingState", optional, tag = "1")]
+    pub playing_state: ::core::option::Option<i32>,
+    #[prost(uint32, optional, tag = "2")]
+    pub current_position: ::core::option::Option<u32>,
     #[prost(message, optional, tag = "3")]
     pub current_queue_item: ::core::option::Option<QueueItemRef>,
 }
@@ -110,10 +110,10 @@ pub struct CtrlSrvrSetActiveRenderer {
 pub struct CtrlSrvrSetVolume {
     #[prost(int32, tag = "1")]
     pub renderer_id: i32,
-    #[prost(uint32, tag = "2")]
-    pub volume: u32,
-    #[prost(int32, tag = "3")]
-    pub volume_delta: i32,
+    #[prost(uint32, optional, tag = "2")]
+    pub volume: ::core::option::Option<u32>,
+    #[prost(int32, optional, tag = "3")]
+    pub volume_delta: ::core::option::Option<i32>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CtrlSrvrMuteVolume {
@@ -153,8 +153,8 @@ pub struct SrvrCtrlMaxAudioQualityChanged {
     pub renderer_id: i32,
     #[prost(enumeration = "AudioQuality", tag = "2")]
     pub max_audio_quality: i32,
-    #[prost(enumeration = "NetworkType", tag = "3")]
-    pub network_type: i32,
+    #[prost(enumeration = "NetworkType", optional, tag = "3")]
+    pub network_type: ::core::option::Option<i32>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlFileAudioQualityChanged {
@@ -235,12 +235,12 @@ pub struct CtrlSrvrQueueLoadTracks {
     pub track_ids: ::prost::alloc::vec::Vec<u32>,
     #[prost(uint32, tag = "4")]
     pub queue_position: u32,
-    #[prost(fixed32, tag = "5")]
-    pub shuffle_seed: u32,
-    #[prost(int32, tag = "6")]
-    pub shuffle_pivot_index: i32,
-    #[prost(bool, tag = "7")]
-    pub shuffle_mode: bool,
+    #[prost(fixed32, optional, tag = "5")]
+    pub shuffle_seed: ::core::option::Option<u32>,
+    #[prost(int32, optional, tag = "6")]
+    pub shuffle_pivot_index: ::core::option::Option<i32>,
+    #[prost(bool, optional, tag = "7")]
+    pub shuffle_mode: ::core::option::Option<bool>,
     #[prost(bytes = "vec", tag = "8")]
     pub context_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "9")]
@@ -256,10 +256,10 @@ pub struct CtrlSrvrQueueInsertTracks {
     pub action_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(fixed32, repeated, tag = "3")]
     pub track_ids: ::prost::alloc::vec::Vec<u32>,
-    #[prost(int32, tag = "4")]
-    pub insert_after: i32,
-    #[prost(fixed32, tag = "5")]
-    pub shuffle_seed: u32,
+    #[prost(int32, optional, tag = "4")]
+    pub insert_after: ::core::option::Option<i32>,
+    #[prost(fixed32, optional, tag = "5")]
+    pub shuffle_seed: ::core::option::Option<u32>,
     #[prost(bytes = "vec", tag = "6")]
     pub context_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "7")]
@@ -275,8 +275,8 @@ pub struct CtrlSrvrQueueAddTracks {
     pub action_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(fixed32, repeated, tag = "3")]
     pub track_ids: ::prost::alloc::vec::Vec<u32>,
-    #[prost(fixed32, tag = "4")]
-    pub shuffle_seed: u32,
+    #[prost(fixed32, optional, tag = "4")]
+    pub shuffle_seed: ::core::option::Option<u32>,
     #[prost(bytes = "vec", tag = "5")]
     pub context_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "6")]
@@ -305,8 +305,8 @@ pub struct CtrlSrvrQueueReorderTracks {
     pub action_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(int32, repeated, tag = "3")]
     pub queue_item_ids: ::prost::alloc::vec::Vec<i32>,
-    #[prost(int32, tag = "4")]
-    pub insert_after: i32,
+    #[prost(int32, optional, tag = "4")]
+    pub insert_after: ::core::option::Option<i32>,
     #[prost(bool, tag = "5")]
     pub autoplay_reset: bool,
     #[prost(bool, tag = "6")]
@@ -320,10 +320,10 @@ pub struct CtrlSrvrSetShuffleMode {
     pub action_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "3")]
     pub shuffle_mode: bool,
-    #[prost(fixed32, tag = "4")]
-    pub shuffle_seed: u32,
-    #[prost(int32, tag = "5")]
-    pub shuffle_pivot_queue_item_id: i32,
+    #[prost(fixed32, optional, tag = "4")]
+    pub shuffle_seed: ::core::option::Option<u32>,
+    #[prost(int32, optional, tag = "5")]
+    pub shuffle_pivot_queue_item_id: ::core::option::Option<i32>,
     #[prost(bool, tag = "6")]
     pub autoplay_reset: bool,
     #[prost(bool, tag = "7")]
@@ -431,8 +431,8 @@ pub struct SrvrCtrlLoopModeSet {
 pub struct SrvrCtrlQueueState {
     #[prost(message, optional, tag = "1")]
     pub queue_version: ::core::option::Option<QueueVersion>,
-    #[prost(bytes = "vec", tag = "2")]
-    pub action_uuid: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "2")]
+    pub action_uuid: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
     #[prost(message, repeated, tag = "3")]
     pub tracks: ::prost::alloc::vec::Vec<QueueTrackRef>,
     #[prost(bool, tag = "4")]
@@ -445,8 +445,8 @@ pub struct SrvrCtrlQueueState {
     pub autoplay_loading: bool,
     #[prost(message, repeated, tag = "8")]
     pub autoplay_tracks: ::prost::alloc::vec::Vec<QueueTrackRef>,
-    #[prost(bytes = "vec", tag = "100")]
-    pub queue_hash: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "100")]
+    pub queue_hash: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlQueueCleared {
@@ -465,20 +465,20 @@ pub struct SrvrCtrlQueueTracksLoaded {
     pub tracks: ::prost::alloc::vec::Vec<QueueTrack>,
     #[prost(uint32, tag = "4")]
     pub queue_position: u32,
-    #[prost(fixed32, tag = "5")]
-    pub shuffle_seed: u32,
-    #[prost(int32, tag = "6")]
-    pub shuffle_pivot_queue_item_id: i32,
-    #[prost(bool, tag = "7")]
-    pub shuffle_mode: bool,
+    #[prost(fixed32, optional, tag = "5")]
+    pub shuffle_seed: ::core::option::Option<u32>,
+    #[prost(int32, optional, tag = "6")]
+    pub shuffle_pivot_queue_item_id: ::core::option::Option<i32>,
+    #[prost(bool, optional, tag = "7")]
+    pub shuffle_mode: ::core::option::Option<bool>,
     #[prost(bytes = "vec", tag = "8")]
     pub context_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "9")]
     pub autoplay_reset: bool,
     #[prost(bool, tag = "10")]
     pub autoplay_loading: bool,
-    #[prost(bytes = "vec", tag = "100")]
-    pub queue_hash: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "100")]
+    pub queue_hash: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlQueueTracksReordered {
@@ -488,14 +488,14 @@ pub struct SrvrCtrlQueueTracksReordered {
     pub action_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(int32, repeated, tag = "3")]
     pub queue_item_ids: ::prost::alloc::vec::Vec<i32>,
-    #[prost(int32, tag = "4")]
-    pub insert_after: i32,
+    #[prost(int32, optional, tag = "4")]
+    pub insert_after: ::core::option::Option<i32>,
     #[prost(bool, tag = "5")]
     pub autoplay_reset: bool,
     #[prost(bool, tag = "6")]
     pub autoplay_loading: bool,
-    #[prost(bytes = "vec", tag = "100")]
-    pub queue_hash: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "100")]
+    pub queue_hash: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlQueueTracksRemoved {
@@ -509,8 +509,8 @@ pub struct SrvrCtrlQueueTracksRemoved {
     pub autoplay_reset: bool,
     #[prost(bool, tag = "5")]
     pub autoplay_loading: bool,
-    #[prost(bytes = "vec", tag = "100")]
-    pub queue_hash: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "100")]
+    pub queue_hash: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlQueueTracksAdded {
@@ -520,16 +520,16 @@ pub struct SrvrCtrlQueueTracksAdded {
     pub action_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(message, repeated, tag = "3")]
     pub tracks: ::prost::alloc::vec::Vec<QueueTrack>,
-    #[prost(fixed32, tag = "4")]
-    pub shuffle_seed: u32,
+    #[prost(fixed32, optional, tag = "4")]
+    pub shuffle_seed: ::core::option::Option<u32>,
     #[prost(bytes = "vec", tag = "5")]
     pub context_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "6")]
     pub autoplay_reset: bool,
     #[prost(bool, tag = "7")]
     pub autoplay_loading: bool,
-    #[prost(bytes = "vec", tag = "100")]
-    pub queue_hash: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "100")]
+    pub queue_hash: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlQueueTracksAddedFromAutoplay {
@@ -537,8 +537,8 @@ pub struct SrvrCtrlQueueTracksAddedFromAutoplay {
     pub queue_version: ::core::option::Option<QueueVersion>,
     #[prost(int32, repeated, tag = "2")]
     pub queue_item_ids: ::prost::alloc::vec::Vec<i32>,
-    #[prost(bytes = "vec", tag = "100")]
-    pub queue_hash: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "100")]
+    pub queue_hash: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlQueueTracksInserted {
@@ -548,18 +548,18 @@ pub struct SrvrCtrlQueueTracksInserted {
     pub action_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(message, repeated, tag = "3")]
     pub tracks: ::prost::alloc::vec::Vec<QueueTrack>,
-    #[prost(int32, tag = "4")]
-    pub insert_after: i32,
-    #[prost(fixed32, tag = "5")]
-    pub shuffle_seed: u32,
+    #[prost(int32, optional, tag = "4")]
+    pub insert_after: ::core::option::Option<i32>,
+    #[prost(fixed32, optional, tag = "5")]
+    pub shuffle_seed: ::core::option::Option<u32>,
     #[prost(bytes = "vec", tag = "6")]
     pub context_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "7")]
     pub autoplay_reset: bool,
     #[prost(bool, tag = "8")]
     pub autoplay_loading: bool,
-    #[prost(bytes = "vec", tag = "100")]
-    pub queue_hash: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "100")]
+    pub queue_hash: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlShuffleModeSet {
@@ -569,16 +569,16 @@ pub struct SrvrCtrlShuffleModeSet {
     pub action_uuid: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "3")]
     pub shuffle_mode: bool,
-    #[prost(fixed32, tag = "4")]
-    pub shuffle_seed: u32,
-    #[prost(int32, tag = "5")]
-    pub shuffle_pivot_queue_item_id: i32,
+    #[prost(fixed32, optional, tag = "4")]
+    pub shuffle_seed: ::core::option::Option<u32>,
+    #[prost(int32, optional, tag = "5")]
+    pub shuffle_pivot_queue_item_id: ::core::option::Option<i32>,
     #[prost(bool, tag = "6")]
     pub autoplay_reset: bool,
     #[prost(bool, tag = "7")]
     pub autoplay_loading: bool,
-    #[prost(bytes = "vec", tag = "100")]
-    pub queue_hash: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes = "vec", optional, tag = "100")]
+    pub queue_hash: ::core::option::Option<::prost::alloc::vec::Vec<u8>>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrCtrlAutoplayModeSet {
@@ -632,8 +632,8 @@ pub struct RndrSrvrJoinSession {
     pub reason: i32,
     #[prost(message, optional, tag = "4")]
     pub initial_state: ::core::option::Option<QueueRendererState>,
-    #[prost(bool, tag = "5")]
-    pub is_active: bool,
+    #[prost(bool, optional, tag = "5")]
+    pub is_active: ::core::option::Option<bool>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RndrSrvrDeviceInfoUpdated {
@@ -647,8 +647,8 @@ pub struct RndrSrvrStateUpdated {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct RndrSrvrRendererAction {
-    #[prost(uint32, tag = "1")]
-    pub seek_position: u32,
+    #[prost(uint32, optional, tag = "1")]
+    pub seek_position: ::core::option::Option<u32>,
     #[prost(enumeration = "ActionType", tag = "2")]
     pub action: i32,
 }
@@ -666,8 +666,8 @@ pub struct RndrSrvrVolumeMuted {
 pub struct RndrSrvrMaxAudioQualityChanged {
     #[prost(enumeration = "AudioQuality", tag = "1")]
     pub max_audio_quality: i32,
-    #[prost(enumeration = "NetworkType", tag = "2")]
-    pub network_type: i32,
+    #[prost(enumeration = "NetworkType", optional, tag = "2")]
+    pub network_type: ::core::option::Option<i32>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct RndrSrvrFileAudioQualityChanged {
@@ -691,10 +691,10 @@ pub struct RndrSrvrDeviceAudioQualityChanged {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SrvrRndrSetState {
-    #[prost(enumeration = "PlayingState", tag = "1")]
-    pub playing_state: i32,
-    #[prost(uint32, tag = "2")]
-    pub current_position: u32,
+    #[prost(enumeration = "PlayingState", optional, tag = "1")]
+    pub playing_state: ::core::option::Option<i32>,
+    #[prost(uint32, optional, tag = "2")]
+    pub current_position: ::core::option::Option<u32>,
     #[prost(message, optional, tag = "3")]
     pub queue_version: ::core::option::Option<QueueVersion>,
     #[prost(message, optional, tag = "4")]
@@ -704,10 +704,10 @@ pub struct SrvrRndrSetState {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SrvrRndrSetVolume {
-    #[prost(uint32, tag = "1")]
-    pub volume: u32,
-    #[prost(int32, tag = "2")]
-    pub volume_delta: i32,
+    #[prost(uint32, optional, tag = "1")]
+    pub volume: ::core::option::Option<u32>,
+    #[prost(int32, optional, tag = "2")]
+    pub volume_delta: ::core::option::Option<i32>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SrvrRndrMuteVolume {

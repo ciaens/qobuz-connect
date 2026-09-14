@@ -1,42 +1,14 @@
 #![allow(clippy::unwrap_used, clippy::panic)]
 
-use futures_util::{SinkExt as _, StreamExt as _};
+mod common;
+
+use common::{frames, listen, messages, send};
+use futures_util::SinkExt as _;
 use qobuz_connect::proto::qcloud::Disconnect;
 use qobuz_connect::proto::qconnect::{self, MessageType, QConnectMessage};
 use qobuz_connect::wire::{self, Frame};
-use qobuz_connect::{Credentials, Event, Transport};
-use tokio::net::{TcpListener, TcpStream};
-use tokio::sync::mpsc;
-use tokio_tungstenite::WebSocketStream;
+use qobuz_connect::{Transport, TransportEvent};
 use tokio_tungstenite::tungstenite::Message;
-
-type Server = WebSocketStream<TcpStream>;
-
-async fn listen() -> (Credentials, mpsc::Receiver<Server>) {
-    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
-    let endpoint = format!("ws://{}", listener.local_addr().unwrap());
-    let (sender, receiver) = mpsc::channel(4);
-    tokio::spawn(async move {
-        while let Ok((stream, _)) = listener.accept().await {
-            let socket = tokio_tungstenite::accept_async(stream).await.unwrap();
-            if sender.send(socket).await.is_err() {
-                break;
-            }
-        }
-    });
-    let credentials = Credentials {
-        endpoint,
-        jwt: "jwt".to_owned(),
-    };
-    (credentials, receiver)
-}
-
-async fn frames(server: &mut Server) -> Vec<Frame> {
-    match server.next().await {
-        Some(Ok(Message::Binary(bytes))) => wire::decode(&bytes).unwrap(),
-        other => panic!("expected a binary message, got {other:?}"),
-    }
-}
 
 fn error_message(code: &str) -> QConnectMessage {
     QConnectMessage {
@@ -63,12 +35,10 @@ async fn authenticates_subscribes_and_exchanges_payloads() {
     ));
 
     let inbound = error_message("in");
-    let frame = wire::payload(7, 1, vec![inbound.clone()]);
-    server
-        .send(Message::binary(wire::encode(&[frame])))
-        .await
-        .unwrap();
-    assert!(matches!(transport.recv().await, Some(Event::Message(message)) if *message == inbound));
+    send(&mut server, vec![inbound.clone()]).await;
+    assert!(
+        matches!(transport.recv().await, Some(TransportEvent::Message(message)) if *message == inbound)
+    );
 
     let outbound = error_message("out");
     transport.send(vec![outbound.clone()]).await.unwrap();
@@ -88,14 +58,22 @@ async fn reconnects_after_the_connection_drops() {
     frames(&mut first).await;
     drop(first);
 
-    assert!(matches!(transport.recv().await, Some(Event::Disconnected)));
+    assert!(matches!(
+        transport.recv().await,
+        Some(TransportEvent::Disconnected)
+    ));
     let mut second = connections.recv().await.unwrap();
     let handshake = frames(&mut second).await;
     assert!(matches!(
         handshake.as_slice(),
         [Frame::Authenticate(_), Frame::Subscribe(_)]
     ));
-    assert!(matches!(transport.recv().await, Some(Event::Reconnected)));
+    assert!(matches!(
+        transport.recv().await,
+        Some(TransportEvent::Reconnected)
+    ));
+    transport.send(vec![error_message("again")]).await.unwrap();
+    assert_eq!(messages(&mut second).await, vec![error_message("again")]);
 }
 
 #[tokio::test]

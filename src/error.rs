@@ -11,6 +11,8 @@ pub enum Error {
     Closed,
     /// The server has not registered this device as a renderer yet.
     NotRegistered,
+    /// No Qobuz Connect token could be obtained, with the reason.
+    Token(String),
 }
 
 impl fmt::Display for Error {
@@ -19,6 +21,7 @@ impl fmt::Display for Error {
             Self::Connect(err) => write!(f, "connecting to Qobuz Connect failed: {err}"),
             Self::Closed => f.write_str("the Qobuz Connect transport is closed"),
             Self::NotRegistered => f.write_str("the device is not registered as a renderer yet"),
+            Self::Token(reason) => write!(f, "getting a Qobuz Connect token failed: {reason}"),
         }
     }
 }
@@ -27,7 +30,7 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Connect(err) => Some(err),
-            Self::Closed | Self::NotRegistered => None,
+            Self::Closed | Self::NotRegistered | Self::Token(_) => None,
         }
     }
 }

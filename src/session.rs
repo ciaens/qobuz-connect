@@ -1,6 +1,7 @@
 //! A device's membership in a Qobuz Connect session, joined as a controller renderer like the official apps.
 
 use std::collections::VecDeque;
+use std::future::Future;
 
 use crate::Error;
 use crate::controller::{ControllerCommand, uuid};
@@ -28,7 +29,19 @@ pub struct Session {
 impl Session {
     /// Connects and joins the session of the account behind the credentials.
     pub async fn join(credentials: Credentials, device: Device) -> Result<Self, Error> {
-        let transport = Transport::connect(credentials).await?;
+        Self::joined(Transport::connect(credentials).await?, device).await
+    }
+
+    /// Like `join`, with a token minted by `source` before every connection; see `Transport::connect_with`.
+    pub async fn join_with<S, F>(source: S, device: Device) -> Result<Self, Error>
+    where
+        S: FnMut() -> F + Send + 'static,
+        F: Future<Output = Result<Credentials, Error>> + Send + 'static,
+    {
+        Self::joined(Transport::connect_with(source).await?, device).await
+    }
+
+    async fn joined(transport: Transport, device: Device) -> Result<Self, Error> {
         let session = Self {
             transport,
             device,

@@ -1,5 +1,7 @@
 //! WebSocket connection to the Qobuz cloud carrying Qobuz Connect messages.
 
+use std::future::Future;
+use std::pin::Pin;
 use std::time::{Duration, Instant};
 
 use futures_util::{SinkExt as _, StreamExt as _};
@@ -14,6 +16,8 @@ use crate::proto::qconnect::QConnectMessage;
 use crate::wire::{self, Frame};
 
 type Socket = WebSocketStream<MaybeTlsStream<TcpStream>>;
+type Minted = Pin<Box<dyn Future<Output = Result<Credentials, Error>> + Send>>;
+type Source = Box<dyn FnMut() -> Minted + Send>;
 
 const KEEPALIVE: Duration = Duration::from_secs(30);
 const BACKOFF_MS: [u64; 8] = [100, 200, 500, 1_000, 2_000, 5_000, 10_000, 20_000];
@@ -67,14 +71,29 @@ enum Outcome {
 }
 
 impl Transport {
-    /// Connects, authenticates and subscribes, then keeps the connection alive in a background task.
+    /// Connects, authenticates and subscribes, then keeps the connection alive in a background task, reusing the token after a drop.
     pub async fn connect(credentials: Credentials) -> Result<Self, Error> {
+        Self::connect_with(move || {
+            let credentials = credentials.clone();
+            async move { Ok(credentials) }
+        })
+        .await
+    }
+
+    /// Like `connect`, with a token minted by `source` before every connection, as the official apps do: the cloud accepts one socket per token.
+    pub async fn connect_with<S, F>(mut source: S) -> Result<Self, Error>
+    where
+        S: FnMut() -> F + Send + 'static,
+        F: Future<Output = Result<Credentials, Error>> + Send + 'static,
+    {
+        let credentials = source().await?;
         let mut counters = Counters::default();
         let socket = open(&credentials, &mut counters).await?;
         let (event_sender, events) = mpsc::channel(64);
         let (outbound, outbound_receiver) = mpsc::channel(16);
+        let source: Source = Box::new(move || -> Minted { Box::pin(source()) });
         tokio::spawn(run(
-            credentials,
+            source,
             counters,
             socket,
             outbound_receiver,
@@ -113,7 +132,7 @@ async fn open(
 }
 
 async fn run(
-    credentials: Credentials,
+    mut source: Source,
     mut counters: Counters,
     mut socket: Socket,
     mut outbound: mpsc::Receiver<Vec<QConnectMessage>>,
@@ -137,7 +156,7 @@ async fn run(
         if events.send(Event::Disconnected).await.is_err() {
             return;
         }
-        let Some(reopened) = reopen(&credentials, &mut counters, &outbound, &mut attempt).await
+        let Some(reopened) = reopen(&mut source, &mut counters, &outbound, &mut attempt).await
         else {
             return;
         };
@@ -149,7 +168,7 @@ async fn run(
 }
 
 async fn reopen(
-    credentials: &Credentials,
+    source: &mut Source,
     counters: &mut Counters,
     outbound: &mpsc::Receiver<Vec<QConnectMessage>>,
     attempt: &mut usize,
@@ -161,7 +180,11 @@ async fn reopen(
         }
         *attempt = attempt.saturating_add(1);
         let attempt = *attempt;
-        match open(credentials, counters).await {
+        let opened = match source().await {
+            Ok(credentials) => open(&credentials, counters).await.map_err(Error::from),
+            Err(err) => Err(err),
+        };
+        match opened {
             Ok(socket) => {
                 tracing::info!(attempt, "reconnected");
                 return Some(socket);
@@ -264,16 +287,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn backoff_follows_the_web_player_then_stays_capped() {
+    fn backoff_follows_the_web_player_schedule_and_caps() {
         assert_eq!(backoff(0), Duration::from_millis(100));
         assert_eq!(backoff(3), Duration::from_secs(1));
         assert_eq!(backoff(7), Duration::from_secs(20));
-        assert_eq!(backoff(100), Duration::from_secs(20));
+        assert_eq!(backoff(50), Duration::from_secs(20));
     }
 
     #[test]
     fn attempts_reset_only_after_a_stable_connection() {
-        assert_eq!(next_attempt(5, Duration::from_secs(39)), 5);
-        assert_eq!(next_attempt(5, Duration::from_secs(40)), 0);
+        assert_eq!(next_attempt(4, Duration::from_secs(5)), 4);
+        assert_eq!(next_attempt(4, STABLE), 0);
     }
 }

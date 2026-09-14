@@ -2,7 +2,7 @@
 
 Qobuz Connect protocol in Rust, for devices that are controlled by the Qobuz apps (renderers) and for devices that control other renderers (controllers).
 
-Under construction. The crate currently contains the protocol schema with its generated message types, the transport to the Qobuz cloud, and the session layer with the renderer and controller roles; token and discovery helpers follow.
+Under construction. The crate contains the protocol schema with its generated message types, the transport to the Qobuz cloud, the session layer with the renderer and controller roles, and the token helper. A device joined through the cloud appears in the device picker of the Qobuz apps, so the crate has no LAN discovery; the LAN handshake of the native apps only serves devices that hold no Qobuz credentials of their own.
 
 ## Session
 
@@ -23,6 +23,20 @@ Controllers extrapolate a renderer's position from the timestamp of its last sta
 `Transport::connect` opens the WebSocket, authenticates, subscribes to Qobuz Connect and keeps the connection alive, reconnecting with the same schedule as the official web player. Messages go out with `send` and arrive through `recv`, together with `Disconnected` and `Reconnected` events so a session can join again.
 
 `examples/listen.rs` joins a session as a controller renderer and prints every message the cloud sends. It takes the socket endpoint and token from `QOBUZ_CONNECT_ENDPOINT` and `QOBUZ_CONNECT_JWT`; both come from the `qws/createToken` response of the Qobuz API, visible in the browser network tab when play.qobuz.com starts. `examples/decode.rs` pretty-prints a captured WebSocket message given as hex on stdin.
+
+## Token
+
+The cloud socket authenticates with a Qobuz Connect token that the Qobuz API mints for a logged-in user. `TokenRequest::new` describes the request for any HTTP client, a POST of `jwt=jwt_qws` to `qws/createToken` with the app id and user auth token headers every Qobuz API call carries, and `Credentials::from_json` reads the response. The crate does no HTTP itself.
+
+The cloud accepts one socket per token, and the official apps mint a new token before every connection. `Session::join_with` and `Transport::connect_with` take a closure that mints one, called again before every reconnect. `join` and `connect` reuse the token they were given, which is enough for the examples and for short sessions.
+
+`examples/token.rs` prints the request as a curl command when `QOBUZ_APP_ID` and `QOBUZ_USER_AUTH_TOKEN` are set, both visible on any API request in the browser network tab of play.qobuz.com, and turns a response piped on stdin into the two exports the other examples need:
+
+```
+eval "$(cargo run -q --example token | sh | cargo run -q --example token)"
+```
+
+Run it once per process, since two processes cannot share a token.
 
 ## Schema
 

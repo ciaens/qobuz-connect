@@ -2,12 +2,15 @@
 
 mod common;
 
+use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
+
 use common::{frames, listen, messages, send};
 use futures_util::SinkExt as _;
 use qobuz_connect::proto::qcloud::Disconnect;
 use qobuz_connect::proto::qconnect::{self, MessageType, QConnectMessage};
 use qobuz_connect::wire::{self, Frame};
-use qobuz_connect::{Transport, TransportEvent};
+use qobuz_connect::{Credentials, Transport, TransportEvent};
 use tokio_tungstenite::tungstenite::Message;
 
 fn error_message(code: &str) -> QConnectMessage {
@@ -93,4 +96,46 @@ async fn stops_when_the_server_refuses_reconnection() {
         .await
         .unwrap();
     assert!(transport.recv().await.is_none());
+}
+
+#[tokio::test]
+async fn mints_a_token_for_every_connection() {
+    let (credentials, mut connections) = listen().await;
+    let minted = Arc::new(AtomicUsize::new(0));
+    let counter = minted.clone();
+    let mut transport = Transport::connect_with(move || {
+        let count = counter.fetch_add(1, Ordering::SeqCst).saturating_add(1);
+        let endpoint = credentials.endpoint.clone();
+        async move {
+            Ok(Credentials {
+                endpoint,
+                jwt: format!("jwt{count}"),
+            })
+        }
+    })
+    .await
+    .unwrap();
+    let mut first = connections.recv().await.unwrap();
+    let handshake = frames(&mut first).await;
+    assert!(matches!(
+        handshake.as_slice(),
+        [Frame::Authenticate(auth), _] if auth.jwt == "jwt1"
+    ));
+    drop(first);
+
+    assert!(matches!(
+        transport.recv().await,
+        Some(TransportEvent::Disconnected)
+    ));
+    let mut second = connections.recv().await.unwrap();
+    let handshake = frames(&mut second).await;
+    assert!(matches!(
+        handshake.as_slice(),
+        [Frame::Authenticate(auth), _] if auth.jwt == "jwt2"
+    ));
+    assert!(matches!(
+        transport.recv().await,
+        Some(TransportEvent::Reconnected)
+    ));
+    assert_eq!(minted.load(Ordering::SeqCst), 2);
 }

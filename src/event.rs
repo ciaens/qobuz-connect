@@ -111,6 +111,26 @@ impl QueueEvent {
             Self::LoopModeSet(_) => None,
         }
     }
+
+    /// The action this change answers, as given by the controller that asked for it.
+    #[must_use]
+    pub fn action_uuid(&self) -> Option<&[u8]> {
+        match self {
+            Self::State(m) => m.action_uuid.as_deref(),
+            Self::Cleared(m) => Some(&m.action_uuid),
+            Self::Loaded(m) => Some(&m.action_uuid),
+            Self::Inserted(m) => Some(&m.action_uuid),
+            Self::Added(m) => Some(&m.action_uuid),
+            Self::Removed(m) => Some(&m.action_uuid),
+            Self::Reordered(m) => Some(&m.action_uuid),
+            Self::ShuffleModeSet(m) => Some(&m.action_uuid),
+            Self::AutoplayModeSet(m) => Some(&m.action_uuid),
+            Self::AutoplayTracksLoaded(m) => Some(&m.action_uuid),
+            Self::AutoplayTracksRemoved(m) => Some(&m.action_uuid),
+            Self::Error(m) => Some(&m.action_uuid),
+            Self::AddedFromAutoplay(_) | Self::LoopModeSet(_) => None,
+        }
+    }
 }
 
 /// What a session reports to its owner.

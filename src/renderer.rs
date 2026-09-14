@@ -243,7 +243,7 @@ fn playing(raw: Option<i32>) -> Option<PlayingState> {
         .filter(|state| *state != PlayingState::Unknown)
 }
 
-fn millis(duration: Duration) -> u32 {
+pub(crate) fn millis(duration: Duration) -> u32 {
     u32::try_from(duration.as_millis()).unwrap_or(u32::MAX)
 }
 

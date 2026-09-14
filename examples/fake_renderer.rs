@@ -48,7 +48,7 @@ async fn main() {
             event = session.recv() => {
                 let Some(event) = event else { return };
                 println!("{event:?}");
-                if handle(&session, &mut fake, event, activate).await.is_err() {
+                if handle(&mut session, &mut fake, event, activate).await.is_err() {
                     return;
                 }
             }
@@ -65,7 +65,7 @@ async fn main() {
 }
 
 async fn handle(
-    session: &Session,
+    session: &mut Session,
     fake: &mut Fake,
     event: Event,
     activate: bool,

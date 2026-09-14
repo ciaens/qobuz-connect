@@ -1,11 +1,14 @@
 //! A device's membership in a Qobuz Connect session, joined as a controller renderer like the official apps.
 
+use std::collections::VecDeque;
+
 use crate::Error;
+use crate::controller::{ControllerCommand, uuid};
 use crate::device::Device;
-use crate::event::{self, Event, RendererEvent};
+use crate::event::{self, Event, QueueEvent, RendererEvent};
 use crate::proto::qconnect::{
-    CtrlSrvrAskForQueueState, CtrlSrvrAskForRendererState, CtrlSrvrJoinSession,
-    CtrlSrvrSetActiveRenderer, MessageType, QConnectMessage, QueueVersion,
+    CtrlSrvrAskForQueueState, CtrlSrvrAskForRendererState, CtrlSrvrJoinSession, MessageType,
+    QConnectMessage, QueueVersion,
 };
 use crate::renderer::{RendererCommand, RendererReport};
 use crate::transport::{self, Credentials, Transport};
@@ -18,6 +21,8 @@ pub struct Session {
     uuid: Vec<u8>,
     queue_version: Option<QueueVersion>,
     active: bool,
+    pending: VecDeque<ControllerCommand>,
+    action: Option<Vec<u8>>,
 }
 
 impl Session {
@@ -31,6 +36,8 @@ impl Session {
             uuid: Vec::new(),
             queue_version: None,
             active: false,
+            pending: VecDeque::new(),
+            action: None,
         };
         session.send_join().await?;
         Ok(session)
@@ -43,6 +50,8 @@ impl Session {
             transport::Event::Reconnected => {
                 self.renderer_id = None;
                 self.active = false;
+                self.pending.clear();
+                self.action = None;
                 let _ = self.send_join().await;
                 Event::Reconnected
             }
@@ -56,15 +65,17 @@ impl Session {
         self.send(report.into_message(self.queue_version)).await
     }
 
+    /// Sends a controller command. Commands go out in order; a queue change carries the queue version the session tracks, and the commands behind it wait until the server has answered it with the queue event that carries the next version.
+    pub async fn control(&mut self, command: ControllerCommand) -> Result<(), Error> {
+        self.pending.push_back(command);
+        self.dispatch().await
+    }
+
     /// Makes this device the active renderer of the session.
-    pub async fn activate(&self) -> Result<(), Error> {
+    pub async fn activate(&mut self) -> Result<(), Error> {
         let renderer_id = self.renderer_id.ok_or(Error::NotRegistered)?;
-        self.send(QConnectMessage {
-            message_type: MessageType::CtrlSrvrSetActiveRenderer.into(),
-            ctrl_srvr_set_active_renderer: Some(CtrlSrvrSetActiveRenderer { renderer_id }),
-            ..Default::default()
-        })
-        .await
+        self.control(ControllerCommand::SetActiveRenderer(renderer_id))
+            .await
     }
 
     /// Asks for the full queue; the answer arrives as a queue state event.
@@ -73,7 +84,7 @@ impl Session {
             message_type: MessageType::CtrlSrvrAskForQueueState.into(),
             ctrl_srvr_ask_for_queue_state: Some(CtrlSrvrAskForQueueState {
                 queue_version_ref: self.queue_version,
-                action_uuid: action_uuid(),
+                action_uuid: uuid(),
             }),
             ..Default::default()
         })
@@ -106,7 +117,7 @@ impl Session {
         &self.uuid
     }
 
-    /// The latest queue version seen, stamped on every report.
+    /// The latest queue version seen, stamped on every report and queue change.
     #[must_use]
     pub fn queue_version(&self) -> Option<&QueueVersion> {
         self.queue_version.as_ref()
@@ -155,10 +166,40 @@ impl Session {
                 if let Some(version) = queue.queue_version() {
                     self.queue_version = Some(*version);
                 }
+                self.answered(queue).await;
             }
             _ => {}
         }
         event
+    }
+
+    async fn answered(&mut self, queue: &QueueEvent) {
+        let ours = self
+            .action
+            .as_deref()
+            .is_some_and(|action| Some(action) == queue.action_uuid());
+        if !ours {
+            return;
+        }
+        self.action = None;
+        if matches!(queue, QueueEvent::Error(_)) {
+            self.pending.clear();
+            let _ = self.ask_queue_state().await;
+        }
+        let _ = self.dispatch().await;
+    }
+
+    async fn dispatch(&mut self) -> Result<(), Error> {
+        while self.action.is_none() {
+            let Some(command) = self.pending.pop_front() else {
+                break;
+            };
+            let action = uuid();
+            self.action = command.changes_queue().then(|| action.clone());
+            self.send(command.into_message(self.queue_version, &action))
+                .await?;
+        }
+        Ok(())
     }
 
     async fn send_join(&self) -> Result<(), Error> {
@@ -176,8 +217,4 @@ impl Session {
     async fn send(&self, message: QConnectMessage) -> Result<(), Error> {
         self.transport.send(vec![message]).await
     }
-}
-
-fn action_uuid() -> Vec<u8> {
-    uuid::Uuid::new_v4().into_bytes().to_vec()
 }

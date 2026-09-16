@@ -4,6 +4,7 @@ use tokio_tungstenite::tungstenite;
 
 /// Failures of the connection to the Qobuz cloud.
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum Error {
     /// The WebSocket connection could not be established.
     Connect(tungstenite::Error),

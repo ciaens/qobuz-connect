@@ -21,7 +21,7 @@ async fn main() {
             return;
         }
     };
-    if transport.send(vec![join(&name)]).await.is_err() {
+    if transport.send(vec![join(&name)]).is_err() {
         return;
     }
     while let Some(event) = transport.recv().await {
@@ -30,7 +30,7 @@ async fn main() {
             TransportEvent::Disconnected => println!("disconnected"),
             TransportEvent::Reconnected => {
                 println!("reconnected");
-                if transport.send(vec![join(&name)]).await.is_err() {
+                if transport.send(vec![join(&name)]).is_err() {
                     return;
                 }
             }

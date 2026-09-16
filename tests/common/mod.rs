@@ -1,11 +1,14 @@
 #![allow(dead_code, clippy::unwrap_used, clippy::panic)]
 
+use std::time::Duration;
+
 use futures_util::{SinkExt as _, StreamExt as _};
 use qobuz_connect::Credentials;
 use qobuz_connect::proto::qconnect::QConnectMessage;
 use qobuz_connect::wire::{self, Frame};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::mpsc;
+use tokio::time::timeout;
 use tokio_tungstenite::WebSocketStream;
 use tokio_tungstenite::tungstenite::Message;
 
@@ -38,6 +41,14 @@ pub async fn frames(server: &mut Server) -> Vec<Frame> {
             other => panic!("expected a binary message, got {other:?}"),
         }
     }
+}
+
+pub async fn nothing_sent(server: &mut Server) {
+    assert!(
+        timeout(Duration::from_millis(200), frames(server))
+            .await
+            .is_err()
+    );
 }
 
 pub async fn messages(server: &mut Server) -> Vec<QConnectMessage> {

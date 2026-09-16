@@ -55,6 +55,7 @@ impl PlayerState {
 
 /// A command the cloud sends to this renderer.
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum RendererCommand {
     /// Absent fields are unchanged: a track means jump to it (from `position` or the start, playing unless told otherwise), otherwise `position` is a seek and `playing` a play or pause; a track with a negative queue item id means stop.
     SetState {

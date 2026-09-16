@@ -4,7 +4,7 @@ mod common;
 
 use std::time::Duration;
 
-use common::{Server, frames, listen, messages, send};
+use common::{Server, frames, listen, messages, nothing_sent, send};
 use qobuz_connect::proto::qconnect::{
     AudioQuality, DeviceType, Error as ProtoError, LoopMode, MessageType, PlayingState,
     QConnectMessage, QueueItemRef, QueueTrack, QueueVersion, SrvrCtrlQueueErrorMessage,
@@ -12,7 +12,6 @@ use qobuz_connect::proto::qconnect::{
 };
 use qobuz_connect::{Autoplay, ControllerCommand, Device, Event, QueueEvent, Session};
 use tokio::sync::mpsc;
-use tokio::time::timeout;
 
 fn device() -> Device {
     Device {
@@ -54,14 +53,6 @@ async fn joined() -> (Session, Server, mpsc::Receiver<Server>) {
     (session, server, connections)
 }
 
-async fn nothing_sent(server: &mut Server) {
-    assert!(
-        timeout(Duration::from_millis(200), frames(server))
-            .await
-            .is_err()
-    );
-}
-
 async fn next(server: &mut Server) -> QConnectMessage {
     messages(server).await.into_iter().next().unwrap()
 }
@@ -75,7 +66,6 @@ async fn queue_changes_wait_for_the_previous_answer_and_carry_its_version() {
             shuffle_seed: None,
             autoplay: Autoplay::default(),
         })
-        .await
         .unwrap();
     session
         .control(ControllerCommand::RemoveTracks {
@@ -85,7 +75,6 @@ async fn queue_changes_wait_for_the_previous_answer_and_carry_its_version() {
                 loading: false,
             },
         })
-        .await
         .unwrap();
 
     let add = next(&mut server).await.ctrl_srvr_queue_add_tracks.unwrap();
@@ -135,13 +124,9 @@ async fn queue_changes_wait_for_the_previous_answer_and_carry_its_version() {
 #[tokio::test]
 async fn a_queue_error_drops_what_follows_and_asks_for_the_queue_again() {
     let (mut session, mut server, _connections) = joined().await;
-    session
-        .control(ControllerCommand::ClearQueue)
-        .await
-        .unwrap();
+    session.control(ControllerCommand::ClearQueue).unwrap();
     session
         .control(ControllerCommand::SetLoopMode(LoopMode::RepeatAll))
-        .await
         .unwrap();
     let clear = next(&mut server).await.ctrl_srvr_clear_queue.unwrap();
     nothing_sent(&mut server).await;
@@ -182,35 +167,30 @@ async fn renderer_commands_go_straight_out_and_player_state_names_the_queue_vers
             position: Some(Duration::from_millis(1500)),
             queue_item_id: Some(4),
         })
-        .await
         .unwrap();
     session
         .control(ControllerCommand::SetVolume {
             renderer_id: 3,
             volume: 40,
         })
-        .await
         .unwrap();
     session
         .control(ControllerCommand::ChangeVolume {
             renderer_id: 3,
             delta: -5,
         })
-        .await
         .unwrap();
     session
         .control(ControllerCommand::Mute {
             renderer_id: 3,
             muted: true,
         })
-        .await
         .unwrap();
     session
         .control(ControllerCommand::SetMaxAudioQuality {
             renderer_id: 3,
             quality: AudioQuality::HiresLevel1,
         })
-        .await
         .unwrap();
 
     let state = next(&mut server).await.ctrl_srvr_set_player_state.unwrap();
@@ -237,4 +217,31 @@ async fn renderer_commands_go_straight_out_and_player_state_names_the_queue_vers
         .ctrl_srvr_set_max_audio_quality
         .unwrap();
     assert_eq!(quality.max_audio_quality(), AudioQuality::HiresLevel1);
+}
+
+#[tokio::test]
+async fn an_unanswered_queue_change_stops_blocking_after_a_while() {
+    let (mut session, mut server, _connections) = joined().await;
+    session.control(ControllerCommand::ClearQueue).unwrap();
+    session
+        .control(ControllerCommand::SetVolume {
+            renderer_id: 3,
+            volume: 40,
+        })
+        .unwrap();
+    next(&mut server).await.ctrl_srvr_clear_queue.unwrap();
+    nothing_sent(&mut server).await;
+
+    tokio::time::pause();
+    tokio::time::advance(Duration::from_secs(10)).await;
+    tokio::time::resume();
+    session
+        .control(ControllerCommand::SetVolume {
+            renderer_id: 3,
+            volume: 50,
+        })
+        .unwrap();
+    let first = next(&mut server).await.ctrl_srvr_set_volume.unwrap();
+    let second = next(&mut server).await.ctrl_srvr_set_volume.unwrap();
+    assert_eq!((first.volume, second.volume), (Some(40), Some(50)));
 }

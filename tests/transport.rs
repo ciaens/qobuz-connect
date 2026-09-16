@@ -4,6 +4,7 @@ mod common;
 
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::time::Duration;
 
 use common::{frames, listen, messages, send};
 use futures_util::SinkExt as _;
@@ -44,7 +45,7 @@ async fn authenticates_subscribes_and_exchanges_payloads() {
     );
 
     let outbound = error_message("out");
-    transport.send(vec![outbound.clone()]).await.unwrap();
+    transport.send(vec![outbound.clone()]).unwrap();
     let sent = frames(&mut server).await;
     let [Frame::Payload(payload)] = sent.as_slice() else {
         panic!("expected one payload frame, got {sent:?}");
@@ -75,7 +76,7 @@ async fn reconnects_after_the_connection_drops() {
         transport.recv().await,
         Some(TransportEvent::Reconnected)
     ));
-    transport.send(vec![error_message("again")]).await.unwrap();
+    transport.send(vec![error_message("again")]).unwrap();
     assert_eq!(messages(&mut second).await, vec![error_message("again")]);
 }
 
@@ -138,4 +139,32 @@ async fn mints_a_token_for_every_connection() {
         Some(TransportEvent::Reconnected)
     ));
     assert_eq!(minted.load(Ordering::SeqCst), 2);
+}
+
+#[tokio::test]
+async fn a_silent_server_counts_as_a_lost_connection() {
+    let (credentials, mut connections) = listen().await;
+    let mut transport = Transport::connect(credentials).await.unwrap();
+    let mut first = connections.recv().await.unwrap();
+    frames(&mut first).await;
+    send(&mut first, vec![error_message("alive")]).await;
+    assert!(matches!(
+        transport.recv().await,
+        Some(TransportEvent::Message(_))
+    ));
+
+    tokio::time::pause();
+    tokio::time::advance(Duration::from_secs(60)).await;
+    tokio::time::resume();
+    assert!(matches!(
+        transport.recv().await,
+        Some(TransportEvent::Disconnected)
+    ));
+    let mut second = connections.recv().await.unwrap();
+    frames(&mut second).await;
+    assert!(matches!(
+        transport.recv().await,
+        Some(TransportEvent::Reconnected)
+    ));
+    drop(first);
 }

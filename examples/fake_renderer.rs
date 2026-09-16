@@ -48,14 +48,14 @@ async fn main() {
             event = session.recv() => {
                 let Some(event) = event else { return };
                 println!("{event:?}");
-                if handle(&mut session, &mut fake, event, activate).await.is_err() {
+                if handle(&mut session, &mut fake, event, activate).is_err() {
                     return;
                 }
             }
             _ = ticker.tick() => {
                 if fake.state.playing == PlayingState::Playing {
                     fake.state.position = fake.state.position.saturating_add(Duration::from_secs(1));
-                    if session.report(RendererReport::State(fake.state.clone())).await.is_err() {
+                    if session.report(RendererReport::State(fake.state.clone())).is_err() {
                         return;
                     }
                 }
@@ -64,14 +64,14 @@ async fn main() {
     }
 }
 
-async fn handle(
+fn handle(
     session: &mut Session,
     fake: &mut Fake,
     event: Event,
     activate: bool,
 ) -> Result<(), qobuz_connect::Error> {
     match event {
-        Event::Registered { .. } if activate => session.activate().await,
+        Event::Registered { .. } if activate => session.activate(),
         Event::Command(RendererCommand::SetState {
             playing,
             position,
@@ -82,37 +82,31 @@ async fn handle(
             if let Some(next) = next {
                 fake.state.next_queue_item_id = Some(next.queue_item_id);
             }
-            session
-                .report(RendererReport::State(fake.state.clone()))
-                .await
+            session.report(RendererReport::State(fake.state.clone()))
         }
         Event::Command(RendererCommand::SetVolume(volume)) => {
             fake.volume = volume.min(100);
-            session.report(RendererReport::Volume(fake.volume)).await
+            session.report(RendererReport::Volume(fake.volume))
         }
         Event::Command(RendererCommand::ChangeVolume(delta)) => {
             fake.volume = fake.volume.saturating_add_signed(delta).min(100);
-            session.report(RendererReport::Volume(fake.volume)).await
+            session.report(RendererReport::Volume(fake.volume))
         }
         Event::Command(RendererCommand::Mute(muted)) => {
             fake.muted = muted;
-            session.report(RendererReport::Muted(muted)).await
+            session.report(RendererReport::Muted(muted))
         }
         Event::Command(RendererCommand::SetActive(true)) => {
-            session.report(RendererReport::Volume(fake.volume)).await?;
-            session.report(RendererReport::Muted(fake.muted)).await?;
-            session
-                .report(RendererReport::MaxAudioQuality {
-                    quality: AudioQuality::HiresLevel3,
-                    network: NetworkType::Wifi,
-                })
-                .await
+            session.report(RendererReport::Volume(fake.volume))?;
+            session.report(RendererReport::Muted(fake.muted))?;
+            session.report(RendererReport::MaxAudioQuality {
+                quality: AudioQuality::HiresLevel3,
+                network: NetworkType::Wifi,
+            })
         }
         Event::Command(RendererCommand::SetActive(false)) => {
             fake.state.playing = PlayingState::Stopped;
-            session
-                .report(RendererReport::State(fake.state.clone()))
-                .await
+            session.report(RendererReport::State(fake.state.clone()))
         }
         _ => Ok(()),
     }

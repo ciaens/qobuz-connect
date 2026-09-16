@@ -4,7 +4,7 @@ mod common;
 
 use std::time::Duration;
 
-use common::{Server, frames, listen, messages, send};
+use common::{Server, frames, listen, messages, nothing_sent, send};
 use qobuz_connect::proto::qconnect::{
     AudioQuality, BufferState, DeviceInfo, DeviceType, LoopMode, MessageType, PlayingState,
     QConnectMessage, QueueTrackRef, QueueVersion, SrvrCtrlAddRenderer, SrvrCtrlSessionState,
@@ -146,7 +146,7 @@ async fn commands_arrive_typed_and_reports_carry_the_queue_version() {
         current_queue_item_id: Some(6),
         next_queue_item_id: None,
     };
-    session.report(RendererReport::State(state)).await.unwrap();
+    session.report(RendererReport::State(state)).unwrap();
     let reported = messages(&mut server).await;
     let reported = reported
         .first()
@@ -188,18 +188,43 @@ async fn rejoins_with_the_session_uuid_after_a_reconnect() {
 #[tokio::test]
 async fn activation_needs_a_renderer_id() {
     let (mut session, mut server, _connections) = joined().await;
-    assert!(matches!(
-        session.activate().await,
-        Err(Error::NotRegistered)
-    ));
+    assert!(matches!(session.activate(), Err(Error::NotRegistered)));
 
     send(&mut server, vec![add_renderer(7, &device())]).await;
     session.recv().await;
-    session.activate().await.unwrap();
+    session.activate().unwrap();
     let sent = messages(&mut server).await;
     let renderer_id = sent
         .first()
         .and_then(|m| m.ctrl_srvr_set_active_renderer.as_ref())
         .map(|a| a.renderer_id);
     assert_eq!(renderer_id, Some(7));
+}
+
+#[tokio::test]
+async fn a_reconnect_drops_what_was_queued_and_registers_again() {
+    let (mut session, mut server, mut connections) = joined().await;
+    send(&mut server, vec![add_renderer(7, &device())]).await;
+    session.recv().await;
+    drop(server);
+    assert_eq!(session.recv().await, Some(Event::Disconnected));
+    session.report(RendererReport::Muted(true)).unwrap();
+
+    let mut server = connections.recv().await.unwrap();
+    frames(&mut server).await;
+    assert_eq!(session.recv().await, Some(Event::Reconnected));
+    assert_eq!(session.renderer_id(), None);
+    let join = messages(&mut server).await;
+    assert!(
+        join.first()
+            .is_some_and(|m| m.ctrl_srvr_join_session.is_some())
+    );
+    nothing_sent(&mut server).await;
+
+    send(&mut server, vec![add_renderer(8, &device())]).await;
+    assert_eq!(
+        session.recv().await,
+        Some(Event::Registered { renderer_id: 8 })
+    );
+    assert_eq!(session.renderer_id(), Some(8));
 }

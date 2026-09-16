@@ -23,6 +23,7 @@ pub struct SessionState {
 
 /// Changes about the renderers of the session, this device included.
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum RendererEvent {
     Added {
         id: i32,
@@ -73,6 +74,7 @@ pub enum RendererEvent {
 
 /// Changes of the shared queue, as sent by the server.
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum QueueEvent {
     State(SrvrCtrlQueueState),
     Cleared(SrvrCtrlQueueCleared),
@@ -135,10 +137,11 @@ impl QueueEvent {
 
 /// What a session reports to its owner.
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum Event {
     /// The connection was lost; the session reconnects and rejoins on its own.
     Disconnected,
-    /// The connection is back and the join was sent again.
+    /// The connection is back and the join was sent again; the renderer id, the active flag and the commands still waiting are gone until the server registers this device again.
     Reconnected,
     /// The server registered this device as a renderer.
     Registered {

@@ -2,14 +2,15 @@
 
 use std::future::Future;
 use std::pin::Pin;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use futures_util::{SinkExt as _, StreamExt as _};
 use tokio::net::TcpStream;
 use tokio::sync::mpsc;
-use tokio::time::MissedTickBehavior;
+use tokio::time::{Instant, MissedTickBehavior};
 use tokio_tungstenite::tungstenite::{self, Message};
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream, connect_async};
+use tracing::Instrument as _;
 
 use crate::Error;
 use crate::proto::qconnect::QConnectMessage;
@@ -20,6 +21,7 @@ type Minted = Pin<Box<dyn Future<Output = Result<Credentials, Error>> + Send>>;
 type Source = Box<dyn FnMut() -> Minted + Send>;
 
 const KEEPALIVE: Duration = Duration::from_secs(30);
+const SILENCE: Duration = KEEPALIVE.saturating_mul(2);
 const BACKOFF_MS: [u64; 8] = [100, 200, 500, 1_000, 2_000, 5_000, 10_000, 20_000];
 const STABLE: Duration = Duration::from_secs(40);
 
@@ -43,7 +45,7 @@ pub enum Event {
 /// A connection that authenticates, subscribes and reconnects on its own. Dropping it closes the connection.
 pub struct Transport {
     events: mpsc::Receiver<Event>,
-    outbound: mpsc::Sender<Vec<QConnectMessage>>,
+    outbound: mpsc::UnboundedSender<Vec<QConnectMessage>>,
 }
 
 #[derive(Default)]
@@ -71,7 +73,7 @@ enum Outcome {
 }
 
 impl Transport {
-    /// Connects, authenticates and subscribes, then keeps the connection alive in a background task, reusing the token after a drop.
+    /// Connects, authenticates and subscribes, then keeps the connection alive in a background task, reusing the token after a drop. The cloud serves one socket per token: two connections sharing a token evict each other.
     pub async fn connect(credentials: Credentials) -> Result<Self, Error> {
         Self::connect_with(move || {
             let credentials = credentials.clone();
@@ -80,7 +82,7 @@ impl Transport {
         .await
     }
 
-    /// Like `connect`, with a token minted by `source` before every connection, as the official apps do: the cloud accepts one socket per token. Makes `ring` the process-wide rustls provider unless the application installed one already.
+    /// Like `connect`, with a token minted by `source` before every connection, as the official apps do: the cloud accepts one socket per token. Makes `ring` the process-wide rustls provider unless the application installed one already. The connection task logs within the caller's `tracing` span: message types at debug, payloads at trace.
     pub async fn connect_with<S, F>(mut source: S) -> Result<Self, Error>
     where
         S: FnMut() -> F + Send + 'static,
@@ -91,15 +93,10 @@ impl Transport {
         let mut counters = Counters::default();
         let socket = open(&credentials, &mut counters).await?;
         let (event_sender, events) = mpsc::channel(64);
-        let (outbound, outbound_receiver) = mpsc::channel(16);
+        let (outbound, outbound_receiver) = mpsc::unbounded_channel();
         let source: Source = Box::new(move || -> Minted { Box::pin(source()) });
-        tokio::spawn(run(
-            source,
-            counters,
-            socket,
-            outbound_receiver,
-            event_sender,
-        ));
+        let task = run(source, counters, socket, outbound_receiver, event_sender);
+        tokio::spawn(task.instrument(tracing::Span::current()));
         Ok(Self { events, outbound })
     }
 
@@ -108,12 +105,9 @@ impl Transport {
         self.events.recv().await
     }
 
-    /// Sends messages to the backend in one payload frame.
-    pub async fn send(&self, messages: Vec<QConnectMessage>) -> Result<(), Error> {
-        self.outbound
-            .send(messages)
-            .await
-            .map_err(|_| Error::Closed)
+    /// Queues messages for the backend in one payload frame; they leave in order while the connection is up, and those still queued when it drops are discarded.
+    pub fn send(&self, messages: Vec<QConnectMessage>) -> Result<(), Error> {
+        self.outbound.send(messages).map_err(|_| Error::Closed)
     }
 }
 
@@ -136,7 +130,7 @@ async fn run(
     mut source: Source,
     mut counters: Counters,
     mut socket: Socket,
-    mut outbound: mpsc::Receiver<Vec<QConnectMessage>>,
+    mut outbound: mpsc::UnboundedReceiver<Vec<QConnectMessage>>,
     events: mpsc::Sender<Event>,
 ) {
     let mut attempt = 0;
@@ -153,6 +147,7 @@ async fn run(
             }
             Outcome::Lost => {}
         }
+        tracing::info!("connection lost");
         attempt = next_attempt(attempt, started.elapsed());
         if events.send(Event::Disconnected).await.is_err() {
             return;
@@ -162,6 +157,7 @@ async fn run(
             return;
         };
         socket = reopened;
+        while outbound.try_recv().is_ok() {}
         if events.send(Event::Reconnected).await.is_err() {
             return;
         }
@@ -171,7 +167,7 @@ async fn run(
 async fn reopen(
     source: &mut Source,
     counters: &mut Counters,
-    outbound: &mpsc::Receiver<Vec<QConnectMessage>>,
+    outbound: &mpsc::UnboundedReceiver<Vec<QConnectMessage>>,
     attempt: &mut usize,
 ) -> Option<Socket> {
     loop {
@@ -210,26 +206,31 @@ fn next_attempt(attempt: usize, uptime: Duration) -> usize {
 
 async fn serve(
     socket: &mut Socket,
-    outbound: &mut mpsc::Receiver<Vec<QConnectMessage>>,
+    outbound: &mut mpsc::UnboundedReceiver<Vec<QConnectMessage>>,
     events: &mpsc::Sender<Event>,
     counters: &mut Counters,
 ) -> Outcome {
     let mut keepalive = tokio::time::interval(KEEPALIVE);
     keepalive.set_missed_tick_behavior(MissedTickBehavior::Delay);
     keepalive.tick().await;
+    let mut seen = Instant::now();
     loop {
         tokio::select! {
             incoming = socket.next() => match incoming {
                 Some(Ok(Message::Binary(bytes))) => {
+                    seen = Instant::now();
                     if let Some(outcome) = receive(&bytes, events).await {
                         return outcome;
                     }
                 }
                 Some(Ok(Message::Close(_)) | Err(_)) | None => return Outcome::Lost,
-                Some(Ok(_)) => {}
+                Some(Ok(_)) => seen = Instant::now(),
             },
             outgoing = outbound.recv() => match outgoing {
                 Some(messages) => {
+                    for message in &messages {
+                        log("out", message);
+                    }
                     let frame = wire::payload(counters.frame(), counters.batch(), messages);
                     if socket.send(Message::binary(wire::encode(&[frame]))).await.is_err() {
                         return Outcome::Lost;
@@ -238,7 +239,9 @@ async fn serve(
                 None => return Outcome::Closed,
             },
             _ = keepalive.tick() => {
-                if socket.send(Message::Ping(Vec::new().into())).await.is_err() {
+                if seen.elapsed() >= SILENCE
+                    || socket.send(Message::Ping(Vec::new().into())).await.is_err()
+                {
                     return Outcome::Lost;
                 }
             }
@@ -259,6 +262,7 @@ async fn receive(bytes: &[u8], events: &mpsc::Sender<Event>) -> Option<Outcome> 
             Frame::Payload(payload) => match wire::messages(&payload) {
                 Ok(messages) => {
                     for message in messages {
+                        log("in", &message);
                         if events
                             .send(Event::Message(Box::new(message)))
                             .await
@@ -277,10 +281,15 @@ async fn receive(bytes: &[u8], events: &mpsc::Sender<Event>) -> Option<Outcome> 
                     Outcome::Refused
                 });
             }
-            other => tracing::debug!(?other, "ignoring frame"),
+            other => tracing::warn!(?other, "ignoring frame"),
         }
     }
     None
+}
+
+fn log(direction: &'static str, message: &QConnectMessage) {
+    tracing::debug!(direction, kind = ?message.message_type(), "message");
+    tracing::trace!(direction, ?message, "message");
 }
 
 #[cfg(test)]

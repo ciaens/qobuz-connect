@@ -43,7 +43,7 @@ async fn main() {
             event = session.recv() => {
                 let Some(event) = event else { return };
                 println!("{event:?}");
-                if handle(&mut session, &mut controller, &wanted, &tracks, event).await.is_err() {
+                if handle(&mut session, &mut controller, &wanted, &tracks, event).is_err() {
                     return;
                 }
             }
@@ -51,7 +51,7 @@ async fn main() {
                 let Some(command) = script(controller.step, &controller.items) else { return };
                 controller.step = controller.step.saturating_add(1);
                 println!("sending {command:?}");
-                if session.control(command).await.is_err() {
+                if session.control(command).is_err() {
                     return;
                 }
             }
@@ -59,7 +59,7 @@ async fn main() {
     }
 }
 
-async fn handle(
+fn handle(
     session: &mut Session,
     controller: &mut Controller,
     wanted: &str,
@@ -72,7 +72,6 @@ async fn handle(
             controller.renderer = Some(id);
             session
                 .control(ControllerCommand::SetActiveRenderer(id))
-                .await
                 .map(|_| ())
         }
         Event::Renderer(RendererEvent::ActiveChanged { id })
@@ -86,7 +85,6 @@ async fn handle(
                     shuffle_pivot_index: None,
                     autoplay: Autoplay::default(),
                 })
-                .await
                 .map(|_| ())
         }
         Event::Queue(QueueEvent::Loaded(loaded)) => {

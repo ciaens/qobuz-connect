@@ -80,12 +80,13 @@ impl Transport {
         .await
     }
 
-    /// Like `connect`, with a token minted by `source` before every connection, as the official apps do: the cloud accepts one socket per token.
+    /// Like `connect`, with a token minted by `source` before every connection, as the official apps do: the cloud accepts one socket per token. Makes `ring` the process-wide rustls provider unless the application installed one already.
     pub async fn connect_with<S, F>(mut source: S) -> Result<Self, Error>
     where
         S: FnMut() -> F + Send + 'static,
         F: Future<Output = Result<Credentials, Error>> + Send + 'static,
     {
+        let _ = rustls::crypto::ring::default_provider().install_default();
         let credentials = source().await?;
         let mut counters = Counters::default();
         let socket = open(&credentials, &mut counters).await?;

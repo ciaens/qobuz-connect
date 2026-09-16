@@ -73,6 +73,7 @@ async fn handle(
             session
                 .control(ControllerCommand::SetActiveRenderer(id))
                 .await
+                .map(|_| ())
         }
         Event::Renderer(RendererEvent::ActiveChanged { id })
             if id.is_some() && id == controller.renderer && controller.items.is_empty() =>
@@ -86,6 +87,7 @@ async fn handle(
                     autoplay: Autoplay::default(),
                 })
                 .await
+                .map(|_| ())
         }
         Event::Queue(QueueEvent::Loaded(loaded)) => {
             controller.items = loaded

@@ -22,7 +22,7 @@ pub struct Session {
     uuid: Vec<u8>,
     queue_version: Option<QueueVersion>,
     active: bool,
-    pending: VecDeque<ControllerCommand>,
+    pending: VecDeque<(Vec<u8>, ControllerCommand)>,
     action: Option<Vec<u8>>,
 }
 
@@ -78,10 +78,13 @@ impl Session {
         self.send(report.into_message(self.queue_version)).await
     }
 
-    /// Sends a controller command. Commands go out in order; a queue change carries the queue version the session tracks, and the commands behind it wait until the server has answered it with the queue event that carries the next version.
-    pub async fn control(&mut self, command: ControllerCommand) -> Result<(), Error> {
-        self.pending.push_back(command);
-        self.dispatch().await
+    /// Sends a controller command. Commands go out in order; a queue change carries the queue version the session tracks, and the commands behind it wait until the server has answered it with the queue event that carries the next version. Returns the action uuid of a queue change, which that answer echoes.
+    pub async fn control(&mut self, command: ControllerCommand) -> Result<Option<Vec<u8>>, Error> {
+        let action = command.changes_queue().then(uuid);
+        self.pending
+            .push_back((action.clone().unwrap_or_default(), command));
+        self.dispatch().await?;
+        Ok(action)
     }
 
     /// Makes this device the active renderer of the session.
@@ -89,6 +92,7 @@ impl Session {
         let renderer_id = self.renderer_id.ok_or(Error::NotRegistered)?;
         self.control(ControllerCommand::SetActiveRenderer(renderer_id))
             .await
+            .map(|_| ())
     }
 
     /// Asks for the full queue; the answer arrives as a queue state event.
@@ -204,10 +208,9 @@ impl Session {
 
     async fn dispatch(&mut self) -> Result<(), Error> {
         while self.action.is_none() {
-            let Some(command) = self.pending.pop_front() else {
+            let Some((action, command)) = self.pending.pop_front() else {
                 break;
             };
-            let action = uuid();
             self.action = command.changes_queue().then(|| action.clone());
             self.send(command.into_message(self.queue_version, &action))
                 .await?;

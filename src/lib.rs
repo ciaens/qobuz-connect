@@ -3,6 +3,8 @@
 
 mod controller;
 mod device;
+#[cfg(feature = "discovery")]
+pub mod discovery;
 mod error;
 mod event;
 pub mod proto;
@@ -14,6 +16,8 @@ pub mod wire;
 
 pub use controller::{Autoplay, ControllerCommand};
 pub use device::Device;
+#[cfg(feature = "discovery")]
+pub use discovery::{Discovery, Handover};
 pub use error::Error;
 pub use event::{Event, QueueEvent, RendererEvent, SessionState};
 pub use renderer::{PlayerState, RendererCommand, RendererReport};

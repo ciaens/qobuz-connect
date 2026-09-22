@@ -1,6 +1,6 @@
 [package]
 name = "qobuz-connect"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.85"
 description = "Qobuz Connect protocol for renderers and controllers"
@@ -11,8 +11,23 @@ categories = ["network-programming", "multimedia::audio"]
 readme = "README.md"
 exclude = ["/tools", "/docs", "/.github"]
 
+[features]
+discovery = ["dep:bytes", "dep:http-body-util", "dep:hyper", "dep:hyper-util", "dep:mdns-sd"]
+
+[package.metadata.docs.rs]
+all-features = true
+
+[[example]]
+name = "lan"
+required-features = ["discovery"]
+
 [dependencies]
+bytes = { version = "1", optional = true }
 futures-util = { version = "0.3", default-features = false, features = ["sink"] }
+http-body-util = { version = "0.1", optional = true }
+hyper = { version = "1", features = ["http1", "server"], optional = true }
+hyper-util = { version = "0.1", features = ["tokio"], optional = true }
+mdns-sd = { version = "0.21", optional = true }
 prost = "0.13"
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
 serde = { version = "1", features = ["derive"] }
@@ -23,7 +38,7 @@ tracing = "0.1"
 uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies]
-tokio = { version = "1", features = ["test-util"] }
+tokio = { version = "1", features = ["io-util", "test-util"] }
 
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }

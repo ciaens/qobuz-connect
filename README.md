@@ -25,6 +25,11 @@ while let Some(event) = session.recv().await {
 
 **Connection:** Sends are queued and never block; `recv` is safe to cancel. The transport reconnects with the web player's backoff, minting a token each time, and treats a minute without a frame as a lost connection. `Reconnected` means the join was sent again: the renderer id, the active flag and the waiting commands are gone until the server registers the device again. Logs go through `tracing` in a span named after the device, message types at debug and payloads at trace.
 
+## Discovery
+
+The native apps also look for devices on the LAN: an mDNS advertisement of `_qobuz-connect._tcp` and three HTTP calls, the last of which hands the device the session and the tokens of the app's own user. That is how a device serves an account other than the one whose credentials it holds. 
+Behind the `discovery` feature, `Discovery::start` advertises a device on a port of your choice and serves the calls; each `Handover` carries credentials for `Session::join`, and `set_session` tells the apps which session the device is in. It needs an inbound TCP port and UDP 5353 for mDNS, where the cloud path needs only outbound TCP 443.
+
 ## Examples
 
 All take `QOBUZ_CONNECT_ENDPOINT` and `QOBUZ_CONNECT_JWT`, which `token` produces from `QOBUZ_APP_ID` and `QOBUZ_USER_AUTH_TOKEN` (you can use the webapp requests to get yours):
@@ -36,6 +41,7 @@ eval "$(cargo run -q --example token | sh | cargo run -q --example token)"
 - `fake_renderer` joins, prints every event, obeys commands with a simulated position and activates itself when `QOBUZ_CONNECT_ACTIVATE` is set. Pick it in a Qobuz app.
 - `controller` makes the renderer named by `QOBUZ_CONNECT_RENDERER` (default `fake renderer`) active, loads the track ids in `QOBUZ_CONNECT_TRACKS`, then plays, pauses, seeks, resumes and skips, five seconds apart.
 - `listen` prints every message the cloud sends; `decode` pretty-prints a captured message given as hex on stdin.
+- `lan`, with `--features discovery`, advertises a fake device on `QOBUZ_CONNECT_PORT` and joins whichever session an app hands over.
 
 One token per process: two sockets sharing one evict each other.
 

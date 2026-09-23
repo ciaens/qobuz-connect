@@ -48,7 +48,7 @@ async fn describes_the_device_and_takes_a_handover() {
         info["serial_number"],
         "07070707-0707-0707-0707-070707070707"
     );
-    assert_eq!(info["max_audio_quality"], "HIRES_L2");
+    assert_eq!(info["max_audio_quality"], "HIRES_L1");
 
     let (_, info) = call(port, get("get-connect-info")).await;
     assert_eq!(info["current_session_id"], "");

@@ -151,7 +151,7 @@ impl Drop for Discovery {
 }
 
 fn advertise(device: &Device, port: u16) -> Result<(ServiceDaemon, String), mdns_sd::Error> {
-    let uuid = uuid::Uuid::from_bytes(device.uuid).simple().to_string();
+    let uuid = uuid::Uuid::from_bytes(device.uuid).hyphenated().to_string();
     let properties = [
         ("path", format!("/devices/{uuid}")),
         ("type", kind_name(device.kind).to_owned()),
@@ -287,16 +287,16 @@ fn display(device: &Device) -> DisplayInfo {
     }
 }
 
-/// Names of the Connect SDK the apps expect on the LAN, which differ from the cloud schema's.
+/// The apps' names for output types and qualities, the ones the web player lists as well.
 fn kind_name(kind: DeviceType) -> &'static str {
     match kind {
         DeviceType::Speaker => "SPEAKER",
-        DeviceType::Streamer => "SPEAKERBOX",
+        DeviceType::Streamer => "STREAMER",
         DeviceType::Tv => "TV",
-        DeviceType::Soundbar => "SPEAKERBOX2",
-        DeviceType::Computer => "LAPTOP",
-        DeviceType::Mobile => "PHONE",
-        DeviceType::Cast => "GOOGLE_CAST",
+        DeviceType::Soundbar => "SOUNDBAR",
+        DeviceType::Computer => "COMPUTER",
+        DeviceType::Mobile => "MOBILE",
+        DeviceType::Cast => "CAST",
         DeviceType::Headphones => "HEADPHONES",
         DeviceType::Tablet => "TABLET",
         DeviceType::Unknown => "UNKNOWN",
@@ -306,9 +306,9 @@ fn kind_name(kind: DeviceType) -> &'static str {
 fn quality_name(quality: AudioQuality) -> &'static str {
     match quality {
         AudioQuality::Mp3 => "MP3",
-        AudioQuality::Cd => "LOSSLESS",
-        AudioQuality::HiresLevel1 => "HIRES_L2",
-        AudioQuality::HiresLevel2 | AudioQuality::HiresLevel3 => "HIRES_L3",
+        AudioQuality::Cd => "CD",
+        AudioQuality::HiresLevel1 => "HIRES_L1",
+        AudioQuality::HiresLevel2 | AudioQuality::HiresLevel3 => "HIRES_L2",
         AudioQuality::Unknown => "UNKNOWN",
     }
 }

@@ -27,8 +27,8 @@ while let Some(event) = session.recv().await {
 
 ## Discovery
 
-The native apps also look for devices on the LAN: an mDNS advertisement of `_qobuz-connect._tcp` and three HTTP calls, the last of which hands the device the session and the tokens of the app's own user. That is how a device serves an account other than the one whose credentials it holds. 
-Behind the `discovery` feature, `Discovery::start` advertises a device on a port of your choice and serves the calls; each `Handover` carries credentials for `Session::join`, and `set_session` tells the apps which session the device is in. It needs an inbound TCP port and UDP 5353 for mDNS, where the cloud path needs only outbound TCP 443.
+The native apps also look for devices on the LAN: an mDNS advertisement of `_qobuz-connect._tcp` and three HTTP calls, the last of which hands the device the session and the tokens of the app's own user. That is how a device serves an account other than the one whose credentials it holds, or one without credentials at all: the API token is a bearer token for the Qobuz API, renewable at `qws/refreshToken`.
+Behind the `discovery` feature, `Discovery::start` advertises a device on a port of your choice and serves the calls; each `Handover` carries credentials for `Session::join` and says whether the app expects the device to make itself active once joined, and `set_session` tells the apps which session the device is in. It needs an inbound TCP port and UDP 5353 for mDNS, where the cloud path needs only outbound TCP 443.
 
 ## Examples
 

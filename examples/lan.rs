@@ -25,6 +25,7 @@ async fn main() {
     };
     loop {
         println!("session {} handed over", handover.session_id);
+        let become_active = handover.become_active;
         let mut session = match Session::join(handover.credentials, device.clone()).await {
             Ok(session) => session,
             Err(err) => {
@@ -38,6 +39,9 @@ async fn main() {
                     let Some(event) = event else { return };
                     if let Event::Session(state) = &event {
                         discovery.set_session(Some(&state.session_uuid));
+                    }
+                    if become_active && matches!(event, Event::Registered { .. }) {
+                        session.activate().unwrap_or_else(|err| eprintln!("{err}"));
                     }
                     println!("{event:?}");
                 }

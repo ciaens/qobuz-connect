@@ -60,7 +60,7 @@ async fn describes_the_device_and_takes_a_handover() {
         "01010101-0101-0101-0101-010101010101"
     );
 
-    let payload = r#"{"session_id":"s1","jwt_qconnect":{"endpoint":"wss://example.test/ws","jwt":"socket","exp":5},"jwt_api":{"jwt":"api","exp":6}}"#;
+    let payload = r#"{"session_id":"s1","jwt_qconnect":{"endpoint":"wss://example.test/ws","jwt":"socket","exp":5},"jwt_api":{"jwt":"api","exp":6},"become_active":true}"#;
     let request = format!(
         "POST /devices/0707/connect-to-qconnect HTTP/1.1\r\nHost: device\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{payload}",
         payload.len()
@@ -76,9 +76,10 @@ async fn describes_the_device_and_takes_a_handover() {
         (
             handover.expires,
             handover.api_jwt.as_str(),
-            handover.api_expires
+            handover.api_expires,
+            handover.become_active
         ),
-        (5, "api", 6)
+        (5, "api", 6, true)
     );
 
     let (status, _) = call(port, get("something-else")).await;

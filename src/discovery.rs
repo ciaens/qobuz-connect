@@ -33,8 +33,12 @@ pub struct Handover {
     pub credentials: Credentials,
     /// Unix time at which the socket token expires.
     pub expires: u64,
+    /// A bearer token for the Qobuz API, so the device needs no login of its own; `qws/refreshToken` renews it.
     pub api_jwt: String,
+    /// Unix time at which the API token expires.
     pub api_expires: u64,
+    /// Whether the app expects the device to make itself the active renderer once it has joined.
+    pub become_active: bool,
 }
 
 /// The device as the apps see it on the LAN. Dropping it withdraws the advertisement and closes the server.
@@ -81,6 +85,8 @@ struct ConnectRequest {
     session_id: String,
     jwt_qconnect: Token,
     jwt_api: Token,
+    #[serde(default)]
+    become_active: bool,
 }
 
 #[derive(Serialize)]
@@ -256,6 +262,7 @@ fn handover(connect: ConnectRequest) -> Handover {
         expires: connect.jwt_qconnect.exp,
         api_jwt: connect.jwt_api.jwt,
         api_expires: connect.jwt_api.exp,
+        become_active: connect.become_active,
     }
 }
 
